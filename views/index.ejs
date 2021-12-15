@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Toard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="border title">
+    <b>Toard - </b>
+    <span>A text only bulletin board</span>
+  </div>
+  <a href="/create.html" class="border title" style="z-index: 3; right: 10px;">Create Post</a><br><br>
+  <% posts.forEach(({ t, ts, d }, cnum) => { %>
+    <div class="border post" id="c<%= cnum %>">
+      <div class="border post">
+      <b><a href="#c<%= cnum %>"><%= t %></a></b>
+       <i><%= (new Date(ts)).toLocaleDateString() %></i>
+      </div>
+     <pre><%- d %></pre>
+    </div>
+  <% }); %>
+  <br>
+  <% if (id.toLowerCase() != "hello_there") { %>
+    <form id="reply" action="/<%= id %>/reply" method="POST" class="border post">
+      <div class="border post"><input style="width: 99%;" type="text" name="t" placeholder="Title" required></input></div>
+      <textarea style="width: 98%; height: 30vh;" name="d" placeholder="Description" required></textarea>
+      <button style="float: right; color: black; background: white" type="submit">Reply</button>
+    </form>
+  <% } %>
+</body>
+</html>
