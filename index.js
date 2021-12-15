@@ -66,7 +66,7 @@ a.post("/:id/reply", (q, s) => {
 	q.body.ts = Date.now();
 	let cnum = post.push(q.body);
 
-	s.redirect(`/${q.params.id}#c${cnum-1}`);
+	s.redirect(`/${q.params.id}#reply`);
 });
 
 a.listen(3000)
