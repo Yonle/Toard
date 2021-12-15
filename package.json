@@ -27,6 +27,7 @@
   "homepage": "https://github.com/Yonle/Toard#readme",
   "dependencies": {
     "ejs": "^3.1.6",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "jsoning": "^0.12.22"
   }
 }

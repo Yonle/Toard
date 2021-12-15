@@ -39,7 +39,7 @@ a.use(bp());
 a.get("/", (q, s) => s.redirect("/hello_there"));
 a.post("/create", (q, s) => {
 	let { t, d } = q.body;
-	if (!t || !d) return s.status(400).end("Invalid Body");
+	if (!t || !d || !t.length || !d.length) return s.status(400).end("Invalid Body");
 	
 	let id = Math.floor(Math.random() * 10000000).toString();
 
@@ -49,7 +49,7 @@ a.post("/create", (q, s) => {
 
 a.use("/:id", (q, s, n) => {
 	if (q.params.id && db.has(q.params.id.toLowerCase())) return n();
-	s.redirect("/Hello_There");
+	s.end("Not found or deleted");
 });
 
 a.get("/:id", (q, s) => {
