@@ -28,7 +28,7 @@
   <% if (id.toLowerCase() != "hello_there") { %>
     <form id="reply" action="/<%= id %>/reply" method="POST" class="border post">
       <div class="border post"><input style="width: 99%;" type="text" name="t" placeholder="Title" required></input></div>
-      <textarea style="width: 98%; height: 30vh;" name="d" placeholder="Description" required></textarea>
+      <textarea style="width: 98%; height: 8vh;" name="d" placeholder="Description" required></textarea>
       <button style="float: right; color: black; background: white" type="submit">Reply</button>
     </form>
   <% } %>
