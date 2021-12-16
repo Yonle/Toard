@@ -1,36 +1,71 @@
 <!DOCTYPE html>
+<!-- https://github.com/Yonle/Toard -->
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=Edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
+  <meta name="description" content="A text only bulletin board">
   <title>Toard</title>
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-  <div class="border title">
+  <div class="border fixed top left">
     <b>Toard - </b>
     <span>A text only bulletin board</span>
   </div>
-  <a href="/create.html" class="border title" style="z-index: 3; right: 10px;">Create Post</a><br><br>
+  <a href="#create" class="border fixed top right">Create Post</a><br><br>
   <% posts.forEach(({ t, ts, d }, cnum) => { %>
-    <div class="border post" id="c<%= cnum %>">
-      <div class="border post">
-      <b><a href="#c<%= cnum %>"><%= t %></a></b>
-       <i><%= (new Date(ts)).toLocaleDateString() %></i>
+    <div class="border" id="c<%= cnum %>">
+      <div class="border">
+       <b><a href="#c<%= cnum %>"><%= t %></a></b>
+       <span class="date"><%= (new Date(ts)).toLocaleDateString() %></span>
       </div>
      <pre><%- d %></pre>
     </div>
   <% }); %>
-  <br>
+
+  <!-- Post Creation -->
+  <form id="create" action="/create" method="POST" class="border fixed left right popup" style="bottom: 40px;">
+    <div class="border post"><input style="width: 99%;" type="text" name="t" placeholder="Title" required></input></div>
+    <textarea style="width: 98%; height: 10vh;" name="d" placeholder="Description" required></textarea><br>
+    <button style="float: right; color: black; background: white" type="submit">Create Post</button>
+    <a style="color: black; background: white;" href="#">Cancel</a>
+  </form>
+
+  <!-- Browsing Channels -->
+  <div id="browse" class="border fixed left right top bottom popup">
+    <b class="border top left">Browse Channels</b>
+    <a class="border top right" style="color: black; background: white;" href="#">Hide</a><br>
+    <i class="left">This is upcoming feature! Come back later!</i><br><br>
+
+    <!-- Unfinished Work
+    <div class="border">
+      <b class="border top left">/t</b>
+      <pre>A place where everyone is discussing about Techs. Including programming, Technology, Engines, computer, and more.</pre>
+    </div>
+    -->
+  </div>
+  
   <% if (id.toLowerCase() != "hello_there") { %>
-    <form id="reply" action="/<%= id %>/reply" method="POST" class="border post">
-      <div class="border post"><input style="width: 99%;" type="text" name="t" placeholder="Title" required></input></div>
-      <textarea style="width: 98%; height: 8vh;" name="d" placeholder="Description" required></textarea>
-      <button style="float: right; color: black; background: white" type="submit">Reply</button>
-    </form>
+  <!-- Reply Button --->
+  <form id="reply" action="/<%= id %>/reply" method="POST" class="border fixed left right bottom popup" style="bottom: 40px;">
+    <div class="border post"><input style="width: 99%;" type="text" name="t" placeholder="Title" required></input></div>
+    <textarea style="width: 98%; height: 10vh;" name="d" placeholder="Description" required></textarea>
+    <button class="border right" style="color: black; background: white;" type="submit">Reply</button>
+    <a style="color: black; background: white;" href="#">Cancel</a>
+  </form>
   <% } %>
+
+  <!-- Bottom Menus -->
+  <div class="bottom fixed">
+    <div class="left">
+      <a class="border" href="/">Home</a>
+      <a class="border" href="#browse">Browse</a>
+      <a class="border" href="#reply">Reply</a>
+    </div>
+    <input class="border fixed right" type="text" placeholder="Search Post...."></input>
+  </div>
 </body>
 </html>

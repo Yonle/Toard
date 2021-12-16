@@ -1,3 +1,7 @@
+body {
+  font-family: sans-serif;
+}
+
 pre {
   margin-top: 0;
   white-space: -moz-pre-wrap; /* Mozilla, supported since 1999 */
@@ -7,13 +11,13 @@ pre {
   word-wrap: break-word; /* IE 5.5+ */
 }
 
-i {
-  color: grey;
-  float: right;
-}
-
 a {
   color: black;
+}
+
+.date {
+  color: grey;
+  float: right;
 }
 
 .border {
@@ -21,17 +25,38 @@ a {
   border-radius: 3px;
 }
 
-.title {
+.fixed {
   position: fixed;
   z-index: 3;
-  margin: 0;
+  /* margin: 0; */
   background: white;
 }
 
-.post {
-  position: relative;
-  left: 0;
-  margin: 0;
+.bottom {
+  bottom: 10px;
+}
+
+.top {
+  top: 10px;
+}
+
+.left {
+  float: left;
+  left: 10px;
+}
+
+.right {
+  float: right;
+  right: 10px;
+}
+
+.popup {
+  visibility: hidden;
+  z-index: 4;
+}
+
+.popup:target {
+  visibility: visible;
 }
 
 .ptl {
