@@ -16,6 +16,8 @@
     <span>A text only bulletin board</span>
   </div>
   <a href="#create" class="border fixed top right">Create Post</a><br><br>
+
+  <!-- Posts --->
   <% posts.forEach(({ t, ts, d }, cnum) => { %>
     <div class="border" id="c<%= cnum %>">
       <div class="border">
@@ -25,6 +27,7 @@
      <pre><%- d %></pre>
     </div>
   <% }); %>
+  <br><br>
 
   <!-- Post Creation -->
   <form id="create" action="/create" method="POST" class="border fixed left right popup" style="bottom: 40px;">
