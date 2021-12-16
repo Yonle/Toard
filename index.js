@@ -69,4 +69,4 @@ a.post("/:id/reply", (q, s) => {
 	s.redirect(`/${q.params.id}#reply`);
 });
 
-a.listen($PORT || 3000);
+a.listen(process.env.PORT || 3000);
