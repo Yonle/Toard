@@ -24,6 +24,33 @@
       "t": "Where's the source code?",
       "ts": 1639575229137,
       "d": "https://github.com/Yonle/Toard"
+    },
+    {
+      "t": "Need API to build your own Toard Client?",
+      "ts": 1639575229137,
+      "d": "See /toard_api Endpoint"
+    }
+  ],
+  "toard_api": [
+    {
+      "t": "Toard API",
+      "ts": 1639575229137,
+      "d": "A short documentation of Toard API, Used for creating your own Toard Client, and etc. The API respond in JSON format, So you need to have a prepared JSON parser in your client."
+    },
+    {
+      "t": "/api/[id]",
+      "ts": 1639575229137,
+      "d": "A endpoint to fetch all Threads / Replies. When you didn't provide a thread ID, The endpoint will returns all Threads with it's Replies."
+    },
+    {
+      "t": "/create",
+      "ts": 1639575229137,
+      "d": "A endpoint to create a thread.\nThis Endpoint only work in POST method, and requires two POST data.\n\n- t\nPost title\n\n- d\nPost Description\n\nExample POST Data:\n\nt=Guys, How can i cook a pancake?\nd=I would like to know how to cook a pancake. I found a post describing how to cook a pancake, But that never work."
+    },
+    {
+      "t": "/[id]/reply",
+      "ts": 1639575229137,
+      "d": "Same as /create endpoint, But it's used for replying a thread."
     }
   ]
 }
