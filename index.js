@@ -24,8 +24,9 @@ a.post("/create", async (q, s) => {
     s.redirect("/" + id);
 });
 
+
 a.get("/api/:id", async (q, s) => {
-    if (!q.params.id) return s.json(await db.all());
+    if (!q.params.id || q.params.id == "_list") return s.json(await db.all());
     if (!(await db.has(q.params.id.toLowerCase()))) return s.status(404).json({ error: "Not Found" });
     s.json(await db.get(q.params.id.toLowerCase()));
 });
