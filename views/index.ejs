@@ -51,7 +51,7 @@
     <% } %>
   </div>
   
-  <% if (id.toLowerCase() != "hello_there") { %>
+  <% if (["hello_there", "toard_api"].includes(id.toLowerCase())) { %>
   <!-- Reply Button --->
   <form id="reply" action="/<%= id %>/reply" method="POST" class="border fixed left right bottom popup" style="bottom: 40px;">
     <div class="border post"><input style="width: 99%;" type="text" name="t" placeholder="Title" required></input></div>

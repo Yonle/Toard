@@ -47,7 +47,7 @@ a.get("/:id", async (q, s) => {
 });
 
 a.post("/:id/reply", async (q, s) => {
-    if (q.id == "hello_there") return s.status(400).end("Post is unreplyable.");
+    if (["hello_there", "toard_api"].includes(q.id)) return s.status(400).end("Post is unreplyable.");
     if (!(await db.has(q.id))) return s.status(404).end("Post is unavailable.");
 
     q.body.ts = Date.now();
