@@ -21,7 +21,7 @@ a {
 }
 
 .border {
-  border: solid;
+  border: solid 1px;
   border-radius: 3px;
 }
 
