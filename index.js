@@ -51,6 +51,14 @@ a.post("/search", async (q, s) => {
       if (res.length) fnd.push(res);
     });
 
+    fnd.unshift({
+      t: "Showing results for: " + q.body.q,
+      d: "There are " + fnd.length + " results for \"" + q.body.q + "\".",
+      ts: Date.now(),
+      id: "search",
+      n: 0
+    });
+
     fnd = fnd.flat();
 
     if (!fnd.length) fnd = [{

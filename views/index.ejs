@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="<%= pst[0].d %>" />
-    <title><%= srch ? "Search result for: " + srch : pst[0].t %></title>
+    <title><%= pst[0].t %></title>
     <link rel="stylesheet" href="style.css" />
   </head>
 
@@ -21,12 +21,11 @@
     <center>
     <div id="posts">
       <!-- Posts --->
-      <% console.log(pst) %>
       <% pst.forEach(({ t, ts, d, n, id }, cnum) => { %>
       <div class="border" id="c<%= cnum %>">
         <div class="border">
           <b><a href="<%= srch ? "/" + id + "#c" + n : "#c" + cnum %>"><%= t %></a></b>
-          <span class="date"><%= srch ? "at /" + id + " - " : "" %><%= (new Date(ts)).toLocaleDateString("id") %></span>
+          <span class="date"><%- srch ? `at <a href="/${id}">/${id}</a> - ` : "" %><%= (new Date(ts)).toLocaleDateString("id") %></span>
         </div>
         <pre><%= d %></pre>
       </div>
