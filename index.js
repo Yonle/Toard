@@ -32,6 +32,39 @@ a.post("/create", async (q, s) => {
     s.redirect("/" + id);
 });
 
+a.post("/search", async (q, s) => {
+    if (!q.body.q || !q.body.q.length) return s.status(400).end("Invalid Body");
+
+    q.body.q = q.body.q.toLowerCase();
+
+    let fnd = [];
+    let thrs = await db.all();
+    Object.keys(thrs).forEach(id => {
+      let thr = thrs[id];
+
+      let res = thr.map((i, n) => {
+        i.n = n;
+        i.id = id;
+        return i;
+      }).filter(i => i.t.toLowerCase().includes(q.body.q) || i.d.toLowerCase().includes(q.body.q));
+
+      if (res.length) fnd.push(res);
+    });
+
+    fnd = fnd.flat();
+
+    if (!fnd.length) fnd = [{
+      t: "No result",
+      d: "No result for \"" + q.body.q + "\". ",
+      ts: Date.now(),
+      id: "search",
+      n: 0
+    }];
+
+    s.render("index.ejs", {
+      pst: fnd, id: "search", bds: thrs, srch: q.body.q
+    });
+});
 
 a.get("/api/:id", async (q, s) => {
     if (!(await db.has(q.params.id.toLowerCase()))) return s.status(404).json({ error: "Not Found" });
@@ -50,12 +83,12 @@ a.use("/:id", async (q, s, n) => {
 a.get("/:id", async (q, s) => {
     let trd = await db.all();
     s.render("index.ejs", {
-        pst: trd[q.id], id: q.id, bds: await db.all()
+        pst: trd[q.id], id: q.id, bds: await db.all(), srch: false
     });
 });
 
 a.post("/:id/reply", async (q, s) => {
-    if (["hello_there", "toard_api"].includes(q.id)) return s.status(400).end("Post is unreplyable.");
+    if (["hello_there", "toard_api", "search"].includes(q.id)) return s.status(400).end("Post is not replyable.");
     if (!(await db.has(q.id))) return s.status(404).end("Post is unavailable.");
 
     let { t, d } = q.body;

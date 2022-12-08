@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="<%= pst[0].d %>" />
-    <title><%= pst[0].t %></title>
+    <title><%= srch ? "Search result for: " + srch : pst[0].t %></title>
     <link rel="stylesheet" href="style.css" />
   </head>
 
@@ -21,11 +21,12 @@
     <center>
     <div id="posts">
       <!-- Posts --->
-      <% pst.forEach(({ t, ts, d }, cnum) => { %>
+      <% console.log(pst) %>
+      <% pst.forEach(({ t, ts, d, n, id }, cnum) => { %>
       <div class="border" id="c<%= cnum %>">
         <div class="border">
-          <b><a href="#c<%= cnum %>"><%= t %></a></b>
-          <span class="date"><%= (new Date(ts)).toLocaleDateString() %></span>
+          <b><a href="<%= srch ? "/" + id + "#c" + n : "#c" + cnum %>"><%= t %></a></b>
+          <span class="date"><%= srch ? "at /" + id + " - " : "" %><%= (new Date(ts)).toLocaleDateString("id") %></span>
         </div>
         <pre><%= d %></pre>
       </div>
@@ -49,6 +50,7 @@
             name="t"
             placeholder="Title"
             required
+            autofocus
           />
         </div>
         <textarea
@@ -92,14 +94,14 @@
           <div class="border">
             <b class="border top left"
               ><a href="/<%= i %>"><%= bds[i][0].t %></a></b
-            > <span class="date"><%= bds[i].length - 1 %> replies - <%= (new Date(bds[i][0].ts)).toLocaleDateString() %></span>
+            > <span class="date"><%= bds[i].length - 1 %> replies - <%= (new Date(bds[i][0].ts)).toLocaleDateString("id") %></span>
             <pre><%= bds[i][0].d %></pre>
           </div>
           <% } %>
         </div>
       </div>
 
-      <% if (!["hello_there", "toard_api"].includes(id.toLowerCase())) { %>
+      <% if (!["hello_there", "toard_api", "search"].includes(id.toLowerCase())) { %>
       <!-- Reply Button --->
       <form
         id="reply"
@@ -121,6 +123,7 @@
           name="d"
           placeholder="Description"
           required
+          autofocus
         ></textarea>
         <button
           class="border right"
@@ -142,11 +145,14 @@
         <a class="border" href="#browse">Browse</a>
         <a class="border" href="#reply">Reply</a>
       </div>
-      <input
+      <form action="/search" method="POST"><input
         class="border fixed right"
+        name="q"
         type="text"
-        placeholder="Search Post...."
-      />
+        placeholder="Search Post....",
+        value="<%= srch || "" %>"
+        required
+      /></form>
     </div>
   </body>
 </html>
