@@ -92,7 +92,7 @@
           <div class="border">
             <b class="border top left"
               ><a href="/<%= i %>"><%= bds[i][0].t %></a></b
-            > <span class="date"><%= bds[i].length %> replies - <%= (new Date(bds[i][0].ts)).toLocaleDateString() %></span>
+            > <span class="date"><%= bds[i].length - 1 %> replies - <%= (new Date(bds[i][0].ts)).toLocaleDateString() %></span>
             <pre><%= bds[i][0].d %></pre>
           </div>
           <% } %>

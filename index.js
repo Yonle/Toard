@@ -1,10 +1,18 @@
 const jng = require("jsoning");
 const eps = require("express");
 const bp = require("body-parser");
+const f = require("fs");
 const a = eps();
 
 // For temporary time, We're gonna use this for main topic.
 // A upcoming commit will comes with channel support.
+
+try {
+  f.accessSync(__dirname + "/db.base.json");
+  f.accessSync(__dirname + "/db.json");
+} catch {
+  f.copyFileSync(__dirname + "/db.base.json", __dirname + "/db.json");
+}
 
 let db = new jng(__dirname + "/db.json");
 
