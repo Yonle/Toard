@@ -22,6 +22,9 @@
   ],
   "author": "Yonle <yonle@duck.com>",
   "license": "BSD-3-Clause",
+  "engines": {
+    "node": ">=11"
+  },
   "bugs": {
     "url": "https://github.com/Yonle/Toard/issues"
   },
