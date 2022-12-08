@@ -18,9 +18,9 @@ a.post("/create", async (q, s) => {
     let { t, d } = q.body;
     if (!t || !d || !t.length || !d.length) return s.status(400).end("Invalid Body");
 
-    let id = Math.floor(Math.random() * 10000000).toString();
+    let id = 1000000 + Object.keys(await db.all()).length - 2 + 1;
 
-    await db.push(id.toLowerCase(), { t, ts: Date.now(), d });
+    await db.push(id, { t, ts: Date.now(), d });
     s.redirect("/" + id);
 });
 
@@ -50,6 +50,10 @@ a.post("/:id/reply", async (q, s) => {
     if (["hello_there", "toard_api"].includes(q.id)) return s.status(400).end("Post is unreplyable.");
     if (!(await db.has(q.id))) return s.status(404).end("Post is unavailable.");
 
+    let { t, d } = q.body;
+    if (!d || !d.length) s.status(400).end("Invalid Body");
+
+    !t ? q.body.t = "Re: " + (await db.get(q.id))[0].t : null;
     q.body.ts = Date.now();
     await db.push(q.id, q.body);
 

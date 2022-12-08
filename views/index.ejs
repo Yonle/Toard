@@ -1,74 +1,153 @@
 <!DOCTYPE html>
 <!-- https://github.com/Yonle/Toard -->
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="<%= pst[0].d %>">
-  <title><%= pst[0].t %></title>
-  <link rel="stylesheet" href="style.css">
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="<%= pst[0].d %>" />
+    <title><%= pst[0].t %></title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
 
-<body>
-  <div class="border fixed top left">
-    <b>Toard - </b>
-    <span>A text only bulletin board</span>
-  </div>
-  <a href="#create" class="border fixed top right">Create Thread</a><br><br>
+  <body>
+    <div class="border fixed top left">
+      <b>Toard - </b>
+      <span>A text only bulletin board</span>
+    </div>
+    <a href="#create" class="border fixed top right">Create Thread</a
+    ><br /><br />
 
-  <!-- Posts --->
-  <% pst.forEach(({ t, ts, d }, cnum) => { %>
-    <div class="border" id="c<%= cnum %>">
-      <div class="border">
-       <b><a href="#c<%= cnum %>"><%= t %></a></b>
-       <span class="date"><%= (new Date(ts)).toLocaleDateString() %></span>
+    <center>
+    <div id="posts">
+      <!-- Posts --->
+      <% pst.forEach(({ t, ts, d }, cnum) => { %>
+      <div class="border" id="c<%= cnum %>">
+        <div class="border">
+          <b><a href="#c<%= cnum %>"><%= t %></a></b>
+          <span class="date"><%= (new Date(ts)).toLocaleDateString() %></span>
+        </div>
+        <pre><%= d %></pre>
       </div>
-     <pre><%= d %></pre>
+      <% }); %>
+      <br /><br />
     </div>
-  <% }); %>
-  <br><br>
 
-  <!-- Post Creation -->
-  <form id="create" action="/create" method="POST" class="border fixed left right popup" style="bottom: 40px;">
-    <div class="border post"><input style="width: 99%;" type="text" name="t" placeholder="Title" required></input></div>
-    <textarea style="width: 98%; height: 10vh;" name="d" placeholder="Description" required></textarea><br>
-    <button style="float: right; color: black; background: white" type="submit">Create Thread</button>
-    <a style="color: black; background: white;" href="#">Cancel</a>
-  </form>
+    <div id="components">
+      <!-- Post Creation -->
+      <form
+        id="create"
+        action="/create"
+        method="POST"
+        class="border fixed left right popup"
+        style="bottom: 40px"
+      >
+        <div class="border post">
+          <input
+            style="width: 99%"
+            type="text"
+            name="t"
+            placeholder="Title"
+            required
+          />
+        </div>
+        <textarea
+          style="width: 98%; height: 10vh"
+          name="d"
+          placeholder="Description"
+          required
+        ></textarea
+        ><br />
+        <button
+          class="border right"
+          style="float: right; color: black; background: white"
+          type="submit"
+        >
+          Create Thread
+        </button>
+        <a style="color: black; background: white" href="#">Cancel</a>
+      </form>
 
-  <!-- Discover Threads -->
-  <div id="browse" class="border fixed left right top bottom popup" style="overflow-y: auto;">
-    <b class="border top left">Discover</b>
-    <a class="border top right fixed" style="color: black; background: white;" href="#">Hide</a>
-    <pre class="left">Discover a Thread. This feature is still BETA, and some monkey may gonna abuse the Thread creation system. So be careful.</pre><br><br><br>
+      <!-- Discover Threads -->
+      <div
+        id="browse"
+        class="border fixed left right top bottom popup"
+        style="overflow-y: auto"
+      >
+        <b class="border top left">Discover</b>
+        <a
+          class="border top right fixed"
+          style="color: black; background: white"
+          href="#"
+          >Hide</a
+        ><br />
+        <span class="fixed left"
+          >There's <b><%= Object.keys(bds).length %> threads</b> in this
+          server.</span
+        >
 
-    <% for (i in bds) { %>
-    <div class="border">
-      <b class="border top left"><a href="/<%= i %>"><%= bds[i][0].t %></a></b>
-      <pre><%= bds[i][0].d %></pre>
+        <br /><br />
+        <div>
+          <% for (i in bds) { %>
+          <div class="border">
+            <b class="border top left"
+              ><a href="/<%= i %>"><%= bds[i][0].t %></a></b
+            > <span class="date"><%= bds[i].length %> replies - <%= (new Date(bds[i][0].ts)).toLocaleDateString() %></span>
+            <pre><%= bds[i][0].d %></pre>
+          </div>
+          <% } %>
+        </div>
+      </div>
+
+      <% if (!["hello_there", "toard_api"].includes(id.toLowerCase())) { %>
+      <!-- Reply Button --->
+      <form
+        id="reply"
+        action="/<%= id %>/reply"
+        method="POST"
+        class="border fixed left right bottom popup"
+        style="bottom: 40px"
+      >
+        <div class="border post">
+          <input
+            style="width: 99%"
+            type="text"
+            name="t"
+            placeholder="Title (optional)"
+          />
+        </div>
+        <textarea
+          style="width: 98%; height: 10vh"
+          name="d"
+          placeholder="Description"
+          required
+        ></textarea>
+        <button
+          class="border right"
+          style="color: black; background: white"
+          type="submit"
+        >
+          Reply
+        </button>
+        <a style="color: black; background: white" href="#">Cancel</a>
+      </form>
+      <% } %>
     </div>
-    <% } %>
-  </div>
-  
-  <% if (!["hello_there", "toard_api"].includes(id.toLowerCase())) { %>
-  <!-- Reply Button --->
-  <form id="reply" action="/<%= id %>/reply" method="POST" class="border fixed left right bottom popup" style="bottom: 40px;">
-    <div class="border post"><input style="width: 99%;" type="text" name="t" placeholder="Title" required></input></div>
-    <textarea style="width: 98%; height: 10vh;" name="d" placeholder="Description" required></textarea>
-    <button class="border right" style="color: black; background: white;" type="submit">Reply</button>
-    <a style="color: black; background: white;" href="#">Cancel</a>
-  </form>
-  <% } %>
+    </center>
 
-  <!-- Bottom Menus -->
-  <div class="bottom fixed">
-    <div class="left">
-      <a class="border" href="/">Home</a>
-      <a class="border" href="#browse">Browse</a>
-      <a class="border" href="#reply">Reply</a>
+    <!-- Bottom Menus -->
+    <div class="bottom fixed">
+      <div class="left">
+        <a class="border" href="/">Home</a>
+        <a class="border" href="#browse">Browse</a>
+        <a class="border" href="#reply">Reply</a>
+      </div>
+      <input
+        class="border fixed right"
+        type="text"
+        placeholder="Search Post...."
+      />
     </div>
-    <input class="border fixed right" type="text" placeholder="Search Post...."></input>
-  </div>
-</body>
+  </body>
 </html>
+
