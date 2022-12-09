@@ -19,7 +19,8 @@ let db = new jng(__dirname + "/db.json");
 a.set("views", __dirname + "/views");
 a.set("view engine", "ejs");
 a.use(eps.static(__dirname + "/public"));
-a.use(bp());
+a.use(bp.urlencoded({ extended: true }));
+a.use(bp.json());
 
 a.get("/", (q, s) => s.redirect("/hello_there"));
 a.post("/create", async (q, s) => {
