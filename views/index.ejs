@@ -89,14 +89,14 @@
 
         <br /><br />
         <div>
-          <% for (i in bds) { %>
+          <% Object.keys(bds).reverse().forEach(i => { %>
           <div class="border">
             <b class="border top left"
               ><a href="/<%= i %>"><%= bds[i][0].t %></a></b
             > <span class="date"><%= bds[i].length - 1 %> replies - <%= (new Date(bds[i][0].ts)).toLocaleDateString("id") %></span>
             <pre><%= bds[i][0].d %></pre>
           </div>
-          <% } %>
+          <% }); %>
         </div>
       </div>
 
