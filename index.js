@@ -1,5 +1,6 @@
 const jng = require("jsoning");
 const eps = require("express");
+const com = require("compression");
 const bp = require("body-parser");
 const f = require("fs");
 const a = eps();
@@ -16,6 +17,7 @@ try {
 
 let db = new jng(__dirname + "/db.json");
 
+a.use(com());
 a.set("views", __dirname + "/views");
 a.set("view engine", "ejs");
 a.use(eps.static(__dirname + "/public"));
@@ -77,7 +79,13 @@ a.post("/search", async (q, s) => {
 
 a.get("/api/:id", async (q, s) => {
     if (!(await db.has(q.params.id.toLowerCase()))) return s.status(404).json({ error: "Not Found" });
-    s.json(await db.get(q.params.id.toLowerCase()));
+    let thread = await db.get(q.params.id.toLowerCase());
+
+    if (!isNaN(parseInt(q.query.from)) && parseInt(q.query.from) > -1) {
+      thread = thread.slice(parseInt(q.query.from));
+    }
+
+    s.json(thread);
 });
 
 a.get("/api", async (q, s) => s.json(await db.all()));
@@ -101,7 +109,7 @@ a.post("/:id/reply", async (q, s) => {
     if (!(await db.has(q.id))) return s.status(404).end("Post is unavailable.");
 
     let { t, d } = q.body;
-    if (!d || !d.length) s.status(400).end("Invalid Body");
+    if (!d || !d.length) return s.status(400).end("Invalid Body");
 
     if (!t) q.body.t = "Anonymous";
     q.body.ts = Date.now();
@@ -110,4 +118,6 @@ a.post("/:id/reply", async (q, s) => {
     s.redirect(`/${q.id}#bottom`);
 });
 
-a.listen(process.env.PORT || 3000);
+let l = a.listen(process.env.PORT || 3000, _ => {
+  console.log("Toard is now listening at", l.address().port);
+});

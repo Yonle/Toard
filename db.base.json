@@ -8,7 +8,7 @@
     {
       "t": "What is Toard?",
       "ts": 1639575229137,
-      "d": "Toard is a Text only Bulletin board. And it's supposed to be anonymous for everyone. No registration is required, 0% Javascript is included in frontend.\n\nToard is written in Javascript (NodeJS)"
+      "d": "Toard is a Text only Bulletin board. And it's supposed to be anonymous for everyone. No registration is required, Javascript being optional frontend.\n\nToard is written in Javascript (NodeJS)"
     },
     {
       "t": "Is Toard 4chan clone?",
@@ -40,7 +40,7 @@
     {
       "t": "/api/[id]",
       "ts": 1639575229137,
-      "d": "A endpoint to fetch all Threads / Replies. When you didn't provide a thread ID, The endpoint will returns all Threads with it's Replies."
+      "d": "A endpoint to fetch all Threads / Replies. When you didn't provide a thread ID, The endpoint will returns all Threads with it's Replies.\n\bQuery:\n- from <number>\nTrim post from specified number."
     },
     {
       "t": "/create",

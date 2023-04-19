@@ -31,8 +31,8 @@
         <pre><%= d %></pre>
       </div>
       <% }); %>
-      <br /><br />
     </div>
+    <br /><br />
 
     <div id="components">
       <!-- Post Creation -->
@@ -115,13 +115,15 @@
             style="width: 99%"
             type="text"
             name="t"
+            id="reply_name"
             placeholder="Name (optional)"
           />
         </div>
         <textarea
           style="width: 98%; height: 10vh"
           name="d"
-          placeholder="Description"
+          placeholder="Comment"
+          id="reply_comment"
           required
           autofocus
         ></textarea>
@@ -129,6 +131,7 @@
           class="border right"
           style="color: black; background: white"
           type="submit"
+          id="reply_button"
         >
           Reply
         </button>
@@ -157,5 +160,68 @@
 
     <div id="bottom"></div>
   </body>
-</html>
+  <script>
+    let posts = document.getElementById("posts");
+    let len = <%= pst.length %>;
 
+    function make(data) {
+      if (!data.ts || !data.t || !data.d) return;
+      let post = document.createElement("div");
+      let span = document.createElement("span");
+      let borderTop = document.createElement("div");
+      let pre = document.createElement("pre");
+      let a = document.createElement("a");
+      let b = document.createElement("b");
+
+      len++
+
+      a.innerText = data.t;
+      a.href = "c" + len;
+      b.appendChild(a);
+
+      span.innerText = (new Date(data.ts)).toLocaleDateString("id");
+      span.classList.add("date");
+      borderTop.appendChild(b);
+      borderTop.appendChild(span);
+      borderTop.classList.add("border");
+
+      pre.innerText = data.d;
+      post.id = "c" + len;
+
+      post.appendChild(borderTop);
+      post.appendChild(pre);
+      post.classList.add("border");
+
+      posts.appendChild(post);
+    }
+
+    function getNewPosts() {
+      if (location.pathname.startsWith("/search")) return;
+      fetch(location.protocol + "//" + location.host + "/api" + location.pathname + "?from=" + len)
+        .then(r => r.json())
+        .then(posts => {
+          posts.forEach(make);
+        });
+    }
+
+    setInterval(getNewPosts, 5000);
+
+    function submit() {
+      let t = encodeURIComponent(document.getElementById("reply_name").value);
+      let d = encodeURIComponent(document.getElementById("reply_comment").value);
+
+      let xhr = new XMLHttpRequest ();
+      xhr.open("POST", location.pathname + "/reply", true);
+      xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      xhr.send(`t=${t}&d=${d}`);
+
+      xhr.addEventListener('load', _ => {
+        location.hash = "#";
+        getNewPosts();
+      });
+    }
+
+    document.getElementById("reply_button").onclick = submit;
+    document.getElementById("reply_button").type = "button";
+  </script>
+</html>
