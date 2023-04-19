@@ -103,7 +103,7 @@ a.post("/:id/reply", async (q, s) => {
     let { t, d } = q.body;
     if (!d || !d.length) s.status(400).end("Invalid Body");
 
-    !t ? q.body.t = "Re: " + (await db.get(q.id))[0].t : null;
+    !t ? q.body.t = "Anonymous";
     q.body.ts = Date.now();
     await db.push(q.id, q.body);
 
