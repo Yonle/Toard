@@ -107,7 +107,7 @@ a.post("/:id/reply", async (q, s) => {
     q.body.ts = Date.now();
     await db.push(q.id, q.body);
 
-    s.redirect(`/${q.id}#reply`);
+    s.redirect(`/${q.id}#bottom`);
 });
 
 a.listen(process.env.PORT || 3000);
