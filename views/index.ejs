@@ -196,7 +196,7 @@
     }
 
     function getNewPosts() {
-      if (location.pathname.startsWith("/search")) return;
+      if (["hello_there", "toard_api", "search"].includes(location.pathname.slice(1))) return;
       fetch(location.protocol + "//" + location.host + "/api" + location.pathname + "?from=" + len)
         .then(r => r.json())
         .then(posts => {
@@ -217,7 +217,6 @@
 
       xhr.addEventListener('load', _ => {
         location.hash = "#";
-        getNewPosts();
       });
     }
 
