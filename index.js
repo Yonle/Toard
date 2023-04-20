@@ -15,6 +15,7 @@ db.pragma("journal_mode = WAL");
 db.pragma('cache_size = 32000');
 
 sys.exec("CREATE TABLE IF NOT EXISTS ip_block (ip TEXT);");
+sys.exec("CREATE TABLE IF NOT EXISTS ip_white (ip TEXT);");
 
 let tables = new Set(db.prepare("SELECT name FROM sqlite_schema;").all().map(i => i.name));
 let newPostsFromIP = {};
@@ -22,11 +23,13 @@ let newPostsFromIP = {};
 a.use(com());
 a.use((q, s, n) => {
   const bl = sys.prepare("SELECT * FROM ip_block WHERE ip = ?;");
+  const wl = sys.prepare("SELECT * FROM ip_white WHERE ip = ?;");
   const ip = q.headers["x-forwarded-for"]?.split("?")[0] || q.socket.address().address;
   const d = new Date();
 
   console.log(`${d.getHours()}:${d.getMinutes()}:${d.getSeconds()} ${ip} ${q.method} ${q.path}`);
 
+  if (wl.get(ip)) return;
   if (q.method === "POST" && bl.get(ip)) {
     console.log(ip, "is blocked.");
     return s.status(403).end("Dong.");
