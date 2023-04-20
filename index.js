@@ -9,13 +9,51 @@ const a = eps();
 // A upcoming commit will comes with channel support.
 
 let db = new sql("database.db");
+let sys = new sql("config.db");
 
 db.pragma("journal_mode = WAL");
 db.pragma('cache_size = 32000');
 
+sys.exec("CREATE TABLE IF NOT EXISTS ip_block (ip TEXT);");
+
 let tables = new Set(db.prepare("SELECT name FROM sqlite_schema;").all().map(i => i.name));
+let newPostsFromIP = {};
 
 a.use(com());
+a.use((q, s, n) => {
+  const bl = sys.prepare("SELECT * FROM ip_block WHERE ip = ?;");
+  const ip = q.headers["x-forwarded-for"]?.split("?")[0] || q.socket.address().address;
+  const d = new Date();
+
+  console.log(`${d.getHours()}:${d.getMinutes()}:${d.getSeconds()} ${ip} ${q.method} ${q.path}`);
+
+  if (q.method === "POST" && bl.get(ip)) {
+    console.log(ip, "is blocked.");
+    return s.status(403).end("Dong.");
+  }
+
+  let lim = 5;
+  if (q.path.endsWith("/reply")) lim = 12;
+
+  if (q.method === "POST") {
+    if (!newPostsFromIP[ip]) {
+      newPostsFromIP[ip] = 0;
+      setInterval(() => {
+        newPostsFromIP[ip] = 0;
+      }, 30000);
+    };
+
+    newPostsFromIP[ip]++;
+
+    if (newPostsFromIP[ip] > (lim*2))
+      sys.prepare(`INSERT INTO ip_block VALUES (@ip);`).run({ ip }); // Bye.
+
+    if (newPostsFromIP[ip] > lim) return s.status(403).end("Dong.");
+  }
+
+  n();
+});
+
 a.set("views", __dirname + "/views");
 a.set("view engine", "ejs");
 a.use(eps.static(__dirname + "/public"));
