@@ -207,6 +207,10 @@
     setInterval(getNewPosts, 3000);
 
     function submit() {
+      document.getElementById("reply_name").disabled = true;
+      document.getElementById("reply_comment").disabled = true;
+      document.getElementById("reply_button").disabled = true;
+
       let t = encodeURIComponent(document.getElementById("reply_name").value);
       let d = encodeURIComponent(document.getElementById("reply_comment").value);
 
@@ -216,12 +220,15 @@
       xhr.send(`t=${t}&d=${d}`);
 
       xhr.addEventListener('load', _ => {
+        location.hash = "#bottom";
         document.getElementById("reply_comment").value = "";
+
+        document.getElementById("reply_name").disabled = false;
+        document.getElementById("reply_comment").disabled = false;
+        document.getElementById("reply_button").disabled = false;
       });
 
       xhr.addEventListener('error', submit);
-
-      location.hash = "#bottom";
     }
 
     document.getElementById("reply_button").onclick = submit;
