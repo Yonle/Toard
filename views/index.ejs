@@ -216,9 +216,12 @@
       xhr.send(`t=${t}&d=${d}`);
 
       xhr.addEventListener('load', _ => {
-        location.hash = "#bottom";
         document.getElementById("reply_comment").value = "";
       });
+
+      xhr.addEventListener('error', submit);
+
+      location.hash = "#bottom";
     }
 
     document.getElementById("reply_button").onclick = submit;
