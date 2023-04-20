@@ -164,7 +164,7 @@
   </body>
   <script>
     let posts = document.getElementById("posts");
-    let len = <%= pst.length %>;
+    let len = document.getElementById("posts").getElementsByTagName("pre").length;
 
     function make(data) {
       if (!data.ts || !data.t || !data.d) return;
