@@ -5,8 +5,8 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="<%= pst[0].d %>" />
-    <title><%= pst[0].t %></title>
+    <meta name="description" content="Text only bulletin board" />
+    <title>Toard</title>
     <link rel="stylesheet" href="style.css" />
   </head>
 
@@ -14,7 +14,7 @@
     <div id="top"></div>
     <div class="border fixed top left">
       <b>Toard - </b>
-      <span>A text only bulletin board</span>
+      <span>Text only bulletin board</span>
     </div>
     <a href="#create" class="border fixed top right">Create Thread</a
     ><br /><br />
@@ -22,15 +22,15 @@
     <center>
     <div id="posts">
       <!-- Posts --->
-      <% pst.forEach(({ t, ts, d, n, id }, cnum) => { %>
-      <div class="border" id="c<%= cnum %>">
+      <% for (const p of pst) { %>
+      <div class="border" id="t<%= p.ts %>">
         <div class="border">
-          <b><a href="<%= srch ? "/" + id + "#c" + n : "#c" + cnum %>"><%= t %></a></b>
-          <span class="date"><%- srch ? `at <a href="/${id}">/${id}</a> - ` : "" %><%= (new Date(ts)).toLocaleDateString("id") %></span>
+          <b><a href="<%= srch ? "/" + p.id + "#t" + p.ts : "#t" + p.ts %>"><%= p.t %></a></b>
+          <span class="date"><%- srch ? `at <a href="/${p.id}">/${id}</a> - ` : "" %><%= (new Date(p.ts)).toLocaleDateString("id") %></span>
         </div>
-        <pre><%= d %></pre>
+        <pre><%= p.d %></pre>
       </div>
-      <% }); %>
+      <% }; %>
     </div>
     <br /><br />
 
@@ -71,6 +71,7 @@
       </form>
 
       <!-- Discover Threads -->
+      <% if (bds) { %>
       <div
         id="browse"
         class="border fixed left right top bottom popup"
@@ -90,16 +91,17 @@
 
         <br /><br />
         <div>
-          <% Object.keys(bds).reverse().forEach(i => { %>
+          <% bds.reverse().forEach(i => { %>
           <div class="border">
             <b class="border top left"
-              ><a href="/<%= i %>"><%= bds[i][0].t %></a></b
-            > <span class="date"><%= bds[i].length - 1 %> replies - <%= (new Date(bds[i][0].ts)).toLocaleDateString("id") %></span>
-            <pre><%= bds[i][0].d %></pre>
+              ><a href="/<%= i.id %>"><%= i.t %></a></b
+            > <span class="date"><%= i.length - 1 %> replies - <%= (new Date(i.ts)).toLocaleDateString("id") %></span>
+            <pre><%= i.d %></pre>
           </div>
           <% }); %>
         </div>
       </div>
+      <% } %>
 
       <% if (!["hello_there", "toard_api", "search"].includes(id.toLowerCase())) { %>
       <!-- Reply Button --->
@@ -186,7 +188,7 @@
       borderTop.classList.add("border");
 
       pre.innerText = data.d;
-      post.id = "c" + len;
+      post.id = "#t" + data.ts;
 
       post.appendChild(borderTop);
       post.appendChild(pre);

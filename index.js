@@ -1,4 +1,4 @@
-const jng = require("jsoning");
+const sql = require("better-sqlite3");
 const eps = require("express");
 const com = require("compression");
 const bp = require("body-parser");
@@ -8,14 +8,12 @@ const a = eps();
 // For temporary time, We're gonna use this for main topic.
 // A upcoming commit will comes with channel support.
 
-try {
-  f.accessSync(__dirname + "/db.base.json");
-  f.accessSync(__dirname + "/db.json");
-} catch {
-  f.copyFileSync(__dirname + "/db.base.json", __dirname + "/db.json");
-}
+let db = new sql("database.db");
 
-let db = new jng(__dirname + "/db.json");
+db.pragma("journal_mode = WAL");
+db.pragma('cache_size = 32000');
+
+let tables = new Set(db.prepare("SELECT name FROM sqlite_schema;").all().map(i => i.name));
 
 a.use(com());
 a.set("views", __dirname + "/views");
@@ -26,12 +24,18 @@ a.use(bp.json());
 
 a.get("/", (q, s) => s.redirect("/hello_there"));
 a.post("/create", async (q, s) => {
-    let { t, d } = q.body;
+    const { t, d } = q.body;
     if (!t || !d || !t.length || !d.length) return s.status(400).end("Invalid Body");
 
-    let id = 1000000 + Object.keys(await db.all()).length - 2 + 1;
+    const id = (1000000 + tables.size - 2 + 1);
 
-    await db.push(id, { t, ts: Date.now(), d });
+    db.exec(`CREATE TABLE "${id}" (ts INTEGER, t TEXT, d TEXT);`);
+
+    tables.add(id.toString());
+
+    const ins = db.prepare(`INSERT INTO "${id}" VALUES (@ts, @t, @d);`);
+    ins.run({ ts: Date.now(), t, d });
+
     s.redirect("/" + id);
 });
 
@@ -41,17 +45,13 @@ a.post("/search", async (q, s) => {
     q.body.q = q.body.q.toLowerCase();
 
     let fnd = [];
-    let thrs = await db.all();
-    Object.keys(thrs).forEach(id => {
-      let thr = thrs[id];
+    tables.forEach(id => {
+      let thr = db.prepare(`SELECT * from "${id}";`);
 
-      let res = thr.map((i, n) => {
-        i.n = n;
+      for (let i of thr.iterate()) {
         i.id = id;
-        return i;
-      }).filter(i => i.t.toLowerCase().includes(q.body.q) || i.d.toLowerCase().includes(q.body.q));
-
-      if (res.length) fnd.push(res);
+        if (i.t.toLowerCase().includes(q.body.q) || i.d.toLowerCase().includes(q.body.q)) return fnd.push(i);
+      }
     });
 
     fnd.unshift({
@@ -59,27 +59,28 @@ a.post("/search", async (q, s) => {
       d: "There are " + fnd.length + " results for \"" + q.body.q + "\".",
       ts: Date.now(),
       id: "search",
-      n: 0
     });
-
-    fnd = fnd.flat();
 
     if (!fnd.length) fnd = [{
       t: "No result",
       d: "No result for \"" + q.body.q + "\". ",
       ts: Date.now(),
       id: "search",
-      n: 0
     }];
 
     s.render("index.ejs", {
-      pst: fnd, id: "search", bds: thrs, srch: q.body.q
+      pst: fnd, id: "search", srch: q.body.q, bds: Array.from(tables).map(id => {
+        let t = db.prepare(`SELECT ts, t, d FROM "${id}";`).all();
+        t[0].id = id;
+        t[0].length = t.length;
+        return t[0];
+      })
     });
 });
 
 a.get("/api/:id", async (q, s) => {
-    if (!(await db.has(q.params.id.toLowerCase()))) return s.status(404).json({ error: "Not Found" });
-    let thread = await db.get(q.params.id.toLowerCase());
+    if (!tables.has(q.params.id)) return s.status(404).json({ error: "Not Found" });
+    let thread = db.prepare(`SELECT * FROM "${q.params.id.toLowerCase()}";`).all();
 
     if (!isNaN(parseInt(q.query.from)) && parseInt(q.query.from) > -1) {
       thread = thread.slice(parseInt(q.query.from));
@@ -88,36 +89,55 @@ a.get("/api/:id", async (q, s) => {
     s.json(thread);
 });
 
-a.get("/api", async (q, s) => s.json(await db.all()));
+a.get("/api", async (q, s) => s.json(tables));
 
 a.use("/:id", async (q, s, n) => {
-    if (q.params.id && await db.has(q.params.id.toLowerCase())) {
+    if (tables.has(q.params.id)) {
         q.id = q.params.id.toLowerCase();
-        n();
-    } else s.status(400).end("Not found or deleted");
+        try {
+          q.table = db.prepare(`SELECT * FROM "${q.id}"`);
+          n();
+        } catch (err) {
+          return s.status(404).end("Not found or deleted");
+        }
+    } else s.status(404).end("Not found or deleted");
 });
 
 a.get("/:id", async (q, s) => {
-    let trd = await db.all();
     s.render("index.ejs", {
-        pst: trd[q.id], id: q.id, bds: await db.all(), srch: false
+        pst: q.table.iterate(), id: q.id, srch: false, bds: Array.from(tables).map(id => {
+          let t = db.prepare(`SELECT ts, t, d FROM "${id}";`).all();
+          t[0].id = id;
+          t[0].length = t.length;
+          return t[0];
+        })
     });
 });
 
 a.post("/:id/reply", async (q, s) => {
     if (["hello_there", "toard_api", "search"].includes(q.id)) return s.status(400).end("Post is not replyable.");
-    if (!(await db.has(q.id))) return s.status(404).end("Post is unavailable.");
 
     let { t, d } = q.body;
     if (!d || !d.length) return s.status(400).end("Invalid Body");
 
-    if (!t) q.body.t = "Anonymous";
-    q.body.ts = Date.now();
-    await db.push(q.id, q.body);
+    if (!t) t = "Anonymous";
 
-    s.redirect(`/${q.id}#bottom`);
+    try {
+      const ins = db.prepare(`INSERT INTO "${q.id}" VALUES (@ts, @t, @d);`);
+      ins.run({ ts: Date.now(), t, d });
+
+      s.redirect(`/${q.id}#bottom`);
+    } catch (err) {
+      s.status(500).end(err.toString());
+      console.error(err);
+    }
 });
 
 let l = a.listen(process.env.PORT || 3000, _ => {
   console.log("Toard is now listening at", l.address().port);
 });
+
+process.on('exit', () => db.close());
+process.on('SIGHUP', () => process.exit(128 + 1));
+process.on('SIGINT', () => process.exit(128 + 2));
+process.on('SIGTERM', () => process.exit(128 + 15));

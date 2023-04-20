@@ -15,12 +15,13 @@ This project is still BETA, Though it's known to be able to get spammed by some 
 
 ## Requirement
 - Node >= 11
+- SQLite3 libs installed.
 - That's all.
 
 ## Setting up
 * Clone the repo
 * Install the dependencies with `npm install`
-* Run it by executing `node index.js`, and done!
+* Run it by executing `npm start`, and done!
 
 ## Community
 * Telegram: https://t.me/yonlecoder

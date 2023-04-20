@@ -69,6 +69,10 @@ a {
   text-align: left;
 }
 
+#posts {
+  margin-bottom: 50px;
+}
+
 #components {
   visibility: hidden;
 }
