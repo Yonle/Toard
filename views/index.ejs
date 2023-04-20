@@ -178,7 +178,7 @@
       len++
 
       a.innerText = data.t;
-      a.href = "#c" + len;
+      a.href = "#t" + data.ts;
       b.appendChild(a);
 
       span.innerText = (new Date(data.ts)).toLocaleDateString("id");
@@ -188,7 +188,7 @@
       borderTop.classList.add("border");
 
       pre.innerText = data.d;
-      post.id = "#t" + data.ts;
+      post.id = "t" + data.ts;
 
       post.appendChild(borderTop);
       post.appendChild(pre);
