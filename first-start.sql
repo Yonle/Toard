@@ -13,7 +13,11 @@ Toard is written in Javascript (NodeJS)"),
 
 INSERT INTO toard_api VALUES
   (1639575229137, "Toard API", "A short documentation of Toard API, Used for creating your own Toard Client, and etc. The API respond in JSON format, So you need to have a prepared JSON parser in your client."),
-  (1639575229137, "/api/[id]", "A endpoint to fetch all Threads / Replies. When you didn't provide a thread ID, The endpoint will returns all Threads with it's Replies.<BRQuery:
+  (1639575229137, "/api/[id]", "A endpoint to fetch all Threads / Replies.
+
+When you didn't provide a thread ID, The endpoint will returns all Threads with it's Replies.
+
+Query:
 - from <number>
   Trim post from specified number."),
   (1639575229137, "/create", "A endpoint to create a thread.
@@ -29,4 +33,18 @@ Example POST Data:
 
 t=Guys, How can i cook a pancake?
 d=I would like to know how to cook a pancake. I found a post describing how to cook a pancake, But that never work."),
+  (1639575229137, "/api/verify", 'A endpoint to get captcha challenge (GET only).
+
+NOTE: You need to set `verify_sess` cookie when /post/reply or /create endpoint gives you `Set-Cookie`.
+
+The following JSON data will be returned by this endpoint:
+
+- q = Question (Usually ASCII)
+- t = Tip. Could be "Solve the captcha." or "Solve the math."
+
+To answer challenge, Send POST request to /verify endpoint with `answer` form.
+
+When /verify endpoint redirect you to /verify again after POST, Request to this endpoint again to get new question until the redirection is no longer going to `/verify`.
+
+You could fetch this endpoint again to get new question if the current question is not possible to answer.'),
   (1639575229137, "/[id]/reply", "Same as /create endpoint, But it's used for replying a thread.");

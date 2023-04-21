@@ -65,6 +65,10 @@ a {
   margin: 0;
 }
 
+.post {
+  margin-bottom: 6px;
+}
+
 #posts, #components {
   text-align: left;
 }

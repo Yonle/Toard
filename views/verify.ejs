@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<!-- https://github.com/Yonle/Toard -->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="To post, finish the following challenges." />
+    <title>Verification</title>
+  </head>
+  <style>
+    pre {
+      font-size: 11px;
+      font-weight: bolder;
+      font-family: "Courier New", monospace, ui-monospace;
+    }
+  </style>
+  <body>
+    <p>To continue, Finish the following challenge</p>
+    <p><%= t %></p>
+    <form action="/verify" method="POST">
+      <pre><%= q %></pre><br>
+      <input type="text" name="answer" placeholder="Answer then press enter...." autofocus></input>
+    </form>
+    <small>Can't see the text well? Refresh!</small>
+  </body>
+</html>

@@ -5,8 +5,8 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Text only bulletin board" />
-    <title>Toard</title>
+    <meta name="description" content="<%= bds.find(i => i.id === id)?.d || pst[0].d %>" />
+    <title>/<%= id %>/ - <%= bds.find(i => i.id === id)?.t || pst[0].t %></title>
     <link rel="stylesheet" href="style.css" />
   </head>
 
@@ -16,14 +16,13 @@
       <b>Toard - </b>
       <span>Text only bulletin board</span>
     </div>
-    <a href="#create" class="border fixed top right">Create Thread</a
+    <a href="#create" class="border fixed top right">New Thread</a
     ><br /><br />
 
-    <center>
     <div id="posts">
       <!-- Posts --->
       <% for (const p of pst) { %>
-      <div class="border" id="t<%= p.ts %>">
+      <div class="border post" id="t<%= p.ts %>">
         <div class="border">
           <b><a href="<%= srch ? "/" + p.id + "#t" + p.ts : "#t" + p.ts %>"><%= p.t %></a></b>
           <span class="date"><%- srch ? `at <a href="/${p.id}">/${id}</a> - ` : "" %><%= (new Date(p.ts)).toLocaleDateString("id") %></span>
@@ -35,74 +34,6 @@
     <br /><br />
 
     <div id="components">
-      <!-- Post Creation -->
-      <form
-        id="create"
-        action="/create"
-        method="POST"
-        class="border fixed left right popup"
-        style="bottom: 40px"
-      >
-        <div class="border post">
-          <input
-            style="width: 99%"
-            type="text"
-            name="t"
-            placeholder="Title"
-            required
-            autofocus
-          />
-        </div>
-        <textarea
-          style="width: 98%; height: 10vh"
-          name="d"
-          placeholder="Description"
-          required
-        ></textarea
-        ><br />
-        <button
-          class="border right"
-          style="float: right; color: black; background: white"
-          type="submit"
-        >
-          Create Thread
-        </button>
-        <a style="color: black; background: white" href="#">Cancel</a>
-      </form>
-
-      <!-- Discover Threads -->
-      <% if (bds) { %>
-      <div
-        id="browse"
-        class="border fixed left right top bottom popup"
-        style="overflow-y: auto"
-      >
-        <b class="border top left">Discover</b>
-        <a
-          class="border top right fixed"
-          style="color: black; background: white"
-          href="#"
-          >Hide</a
-        ><br />
-        <span class="fixed left"
-          >There's <b><%= Object.keys(bds).length %> threads</b> in this
-          server.</span
-        >
-
-        <br /><br />
-        <div>
-          <% bds.reverse().forEach(i => { %>
-          <div class="border">
-            <b class="border top left"
-              ><a href="/<%= i.id %>"><%= i.t %></a></b
-            > <span class="date"><%= i.length - 1 %> replies - <%= (new Date(i.ts)).toLocaleDateString("id") %></span>
-            <pre><%= i.d %></pre>
-          </div>
-          <% }); %>
-        </div>
-      </div>
-      <% } %>
-
       <% if (!["hello_there", "toard_api", "search"].includes(id.toLowerCase())) { %>
       <!-- Reply Button --->
       <form
@@ -112,7 +43,7 @@
         class="border fixed left right bottom popup"
         style="bottom: 40px"
       >
-        <div class="border post">
+        <div class="border">
           <input
             style="width: 99%"
             type="text"
@@ -138,10 +69,80 @@
           Reply
         </button>
         <a style="color: black; background: white" href="#">Cancel</a>
+        <small>Replying to <b>/<%= id %>/</b></small>
       </form>
       <% } %>
+
+      <!-- Post Creation -->
+      <form
+        id="create"
+        action="/create"
+        method="POST"
+        class="border fixed left right popup"
+        style="bottom: 40px"
+      >
+        <div class="border">
+          <input
+            style="width: 99%"
+            type="text"
+            name="t"
+            placeholder="Title"
+            required
+            autofocus
+          />
+        </div>
+        <textarea
+          style="width: 98%; height: 10vh"
+          name="d"
+          placeholder="Description"
+          required
+          autofocus
+        ></textarea
+        ><br />
+        <button
+          class="border right"
+          style="float: right; color: black; background: white"
+          type="submit"
+        >
+          Create Thread
+        </button>
+        <a style="color: black; background: white" href="#">Cancel</a>
+        <small>Create new thread</small>
+      </form>
+
+      <!-- Discover Threads -->
+      <% if (bds) { %>
+      <div
+        id="browse"
+        class="border fixed left right top bottom popup"
+        style="overflow-y: auto"
+      >
+        <b class="border top left">Discover</b>
+        <a
+          class="border top right fixed"
+          style="color: black; background: white"
+          href="#"
+          >Hide</a
+        ><br />
+        <span class="fixed left"
+          >There's <b><%= Object.keys(bds).length %> threads</b> in this
+          server.</span
+        >
+
+        <br /><br />
+        <div>
+          <% bds.reverse().forEach(i => { %>
+          <div class="border post">
+            <b class="border top left"
+              ><a href="/<%= i.id %>"><%= i.t %></a></b
+            > <span class="date"><%= i.length - 1 %> replies - <%= (new Date(i.ts)).toLocaleDateString("id") %></span>
+            <pre><%= i.d %></pre>
+          </div>
+          <% }); %>
+        </div>
+      </div>
+      <% } %> 
     </div>
-    </center>
 
     <!-- Bottom Menus -->
     <div class="bottom fixed">
@@ -202,12 +203,17 @@
       fetch(location.protocol + "//" + location.host + "/api" + location.pathname + "?from=" + len)
         .then(r => r.json())
         .then(posts => {
+          if (posts.length) {
+            const oldtitle = document.title;
+            document.title = `(*) ${posts.length} new replies for ${location.pathname}/`;
+            setTimeout(() => document.title = oldtitle, 10000);
+          }
           posts.forEach(make);
         });
     }
 
-    setInterval(getNewPosts, 3000);
-
+    setInterval(getNewPosts, 10000);
+    <% if (!ct) { %>
     function submit() {
       document.getElementById("reply_name").disabled = true;
       document.getElementById("reply_comment").disabled = true;
@@ -235,5 +241,6 @@
 
     document.getElementById("reply_button").onclick = submit;
     document.getElementById("reply_button").type = "button";
+    <% } %>
   </script>
 </html>

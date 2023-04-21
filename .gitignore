@@ -2,5 +2,6 @@ node_modules
 package-lock.json
 database.db
 config.db
+captcha_sessions.db
 db.json
 .env
