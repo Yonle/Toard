@@ -15,6 +15,16 @@ let getCookie = (c, n) => c && c.split("; ").filter(i => i.startsWith(n)).pop()?
 let db = new sql("database.db");
 let sys = new sql("config.db");
 
+// If 2 iterates executed, better-sqlite3 prevents you to do other stuffs while this happens.
+// Though, we only do reading.
+
+// So, Enable unsafe mode. No guaratee whenever it will protect you from corruption.
+// I REPEAT, THERE IS NO GUARANTEE THAT YOUR DATABASE IS SAFE FROM CORRUPTION.
+// ===== REMEMBER TO DO A DAILY BACKUP =====
+
+db.unsafeMode(true);
+sys.unsafeMode(true);
+
 db.pragma("journal_mode = WAL");
 db.pragma('cache_size = 32000');
 
@@ -25,10 +35,10 @@ const ita = _ => db.prepare("SELECT id FROM __threadlists WHERE id = ?;").get(_)
 
 db.transaction(_ => {
   try {
-    __tl_sqlite_schema.all().forEach(i => {
+    for (i of __tl_sqlite_schema.iterate()) {
       if (!i.name || i.name.startsWith("_") || i.name.startsWith("sqlite_")) return;
       db.prepare("INSERT OR IGNORE INTO __threadlists VALUES (?);").run(i.name);
-    });
+    };
   } catch (err) {
     console.log(err);
     if (!db.inTransaction) throw err;
@@ -44,6 +54,7 @@ let newPostsFromIP = {};
 
 let lth = _ => db.prepare("SELECT id FROM __threadlists;").all().map(({ id }) => {
   try {
+    // Warning: Any mistake in this zone will resulting total destruction.
     let t = db.prepare(`SELECT ts, t, d FROM "${id}";`).all();
     t[0].id = id;
     t[0].length = t.length;
@@ -132,14 +143,12 @@ a.post("/search", async (q, s) => {
     q.body.q = q.body.q.toLowerCase();
 
     let fnd = [];
-    db.prepare("SELECT id FROM __threadlists;").all().forEach(th => {
-      let thr = db.prepare(`SELECT * from "${th.id}";`);
-
-      for (let i of thr.all()) {
+    for (th of db.prepare("SELECT id FROM __threadlists;").iterate()) {
+      for (let i of db.prepare(`SELECT * from "${th.id}";`).iterate()) {
         i.id = th.id;
         if (i.t.toLowerCase().includes(q.body.q) || i.d.toLowerCase().includes(q.body.q)) return fnd.push(i);
       }
-    });;
+    }
 
     fnd.unshift({
       t: "Showing results for: " + q.body.q,
@@ -233,7 +242,7 @@ a.use("/:id", async (q, s, n) => {
 
 a.get("/:id", async (q, s) => {
     s.render("index.ejs", {
-        pst: q.table.all(), id: q.id, srch: false, ct: q.ct, bds: lth()
+        pst: q.table.iterate(), id: q.id, srch: false, ct: q.ct, bds: lth()
     });
 });
 

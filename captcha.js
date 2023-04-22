@@ -5,6 +5,7 @@ const randm = str => str.split("\n").map(i => i.split("").map(i => (Math.random(
 
 let tim = new Map();
 
+db.unsafeMode(true); // Nothing important here. So if corrupted then let it be.
 db.exec("DROP TABLE IF EXISTS verification_sessions;");
 db.exec("CREATE TABLE IF NOT EXISTS verification_sessions (sess TEXT, stage INT, question TEXT, answer TEXT, body TEXT, onid TEXT);");
 
