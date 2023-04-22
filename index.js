@@ -272,6 +272,7 @@ a.post("/:id/reply", async (q, s) => {
 });
 
 let l = a.listen(process.env.PORT || 3000, _ => {
+  console.log("Remember to do backup.");
   console.log("Toard is now listening at", l.address().port);
 });
 
