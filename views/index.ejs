@@ -12,18 +12,18 @@
 
   <body>
     <div id="top"></div>
-    <div class="border fixed top left">
+    <div class="fixed top left">
       <b>Toard - </b>
       <span>Text only bulletin board</span>
     </div>
-    <a href="#create" class="border fixed top right">New Thread</a
+    <a href="#create" class="fixed top right">New Thread</a
     ><br /><br />
 
     <div id="posts">
       <!-- Posts --->
       <% for (const p of pst) { %>
-      <div class="border post" id="t<%= p.ts %>">
-        <div class="border">
+      <div class="post" id="t<%= p.ts %>">
+        <div>
           <b><a href="<%= srch ? "/" + p.id + "#t" + p.ts : "#t" + p.ts %>"><%= p.t %></a></b>
           <span class="date"><%- srch ? `at <a href="/${p.id}">/${p.id}/</a> - ` : "" %><%= (new Date(p.ts)).toLocaleDateString("id") %></span>
         </div>
@@ -40,10 +40,10 @@
         id="reply"
         action="/<%= id %>/reply"
         method="POST"
-        class="border fixed left right bottom popup"
+        class="fixed left right bottom popup"
         style="bottom: 40px"
       >
-        <div class="border">
+        <div>
           <input
             style="width: 99%"
             type="text"
@@ -61,7 +61,7 @@
           autofocus
         ></textarea>
         <button
-          class="border right"
+          class="right"
           style="color: black; background: white"
           type="submit"
           id="reply_button"
@@ -78,10 +78,10 @@
         id="create"
         action="/create"
         method="POST"
-        class="border fixed left right popup"
+        class="fixed left right popup"
         style="bottom: 40px"
       >
-        <div class="border">
+        <div>
           <input
             style="width: 99%"
             type="text"
@@ -100,7 +100,7 @@
         ></textarea
         ><br />
         <button
-          class="border right"
+          class="right"
           style="float: right; color: black; background: white"
           type="submit"
         >
@@ -114,17 +114,17 @@
       <% if (bds) { %>
       <div
         id="browse"
-        class="border fixed left right top bottom popup"
+        class="fixed popup"
         style="overflow-y: auto"
       >
-        <b class="border top left">Discover</b>
+        <b class="top left">Discover</b>
         <a
-          class="border top right fixed"
+          class="top right fixed"
           style="color: black; background: white"
           href="#"
           >Hide</a
         ><br />
-        <span class="fixed left"
+        <span class="fixed"
           >There's <b><%= Object.keys(bds).length %> threads</b> in this
           server.</span
         >
@@ -132,10 +132,10 @@
         <br /><br />
         <div>
           <% bds.reverse().forEach(i => { %>
-          <div class="border post">
-            <b class="border top left"
+          <div class="post">
+            <b class="top left"
               ><a href="/<%= i.id %>"><%= i.t %></a></b
-            > <span class="date"><%= i.length - 1 %> replies - <%= (new Date(i.ts)).toLocaleDateString("id") %></span>
+            > <span class="date"><%= i.length - 1 %> replies - <%= (new Date(i.ts)).toLocaleDateString("id") %></span><br>
             <pre><%= i.d %></pre>
           </div>
           <% }); %>
@@ -147,12 +147,12 @@
     <!-- Bottom Menus -->
     <div class="bottom fixed">
       <div class="left">
-        <a class="border" href="/">Home</a>
-        <a class="border" href="#browse">Browse</a>
-        <a class="border" href="#reply">Reply</a>
+        <a href="/">Home</a>
+        <a href="#browse">Browse</a>
+        <a href="#reply">Reply</a>
       </div>
       <form action="/search" method="POST"><input
-        class="border fixed right"
+        class="fixed right"
         name="q"
         type="text"
         placeholder="Search Post....",
