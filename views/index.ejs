@@ -24,7 +24,6 @@
       <% for (const p of pst) { %>
       <div class="border post" id="t<%= p.ts %>">
         <div class="border">
-          <% console.log(p) %>
           <b><a href="<%= srch ? "/" + p.id + "#t" + p.ts : "#t" + p.ts %>"><%= p.t %></a></b>
           <span class="date"><%- srch ? `at <a href="/${p.id}">/${p.id}/</a> - ` : "" %><%= (new Date(p.ts)).toLocaleDateString("id") %></span>
         </div>
