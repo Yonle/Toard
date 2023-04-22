@@ -6,7 +6,9 @@ for (id in olddb) {
   console.log(id);
   db.exec(`CREATE TABLE IF NOT EXISTS "${id}" (ts INTEGER, t TEXT, d TEXT);`);
   const ins = db.prepare(`INSERT INTO "${id}" VALUES (@ts, @t, @d)`);
-  olddb[id].forEach(p => ins.run(p));
+  db.transaction(ths => {
+    for (th in ths) ins.run(th);
+  })(olddb[id]);
 }
 
 db.close();

@@ -170,13 +170,15 @@ a.post("/verify", (q, s) => {
       try {
         if (sess.onid === "create") {
           sess.onid = (1000000 + tables.size - 2 + 1);
-          tables.add(sess.onid.toString());
           db.exec(`CREATE TABLE "${sess.onid}" (ts INTEGER, t TEXT, d TEXT);`);
         }
 
         const ins = db.prepare(`INSERT INTO "${sess.onid}" VALUES (@ts, @t, @d);`);
         const ts = Date.now();
         ins.run({ ts, t, d });
+
+        tables.delete(sess.onid.toString());
+        tables.add(sess.onid.toString());
 
         s.redirect(`/${sess.onid}#t${ts}`);
       } catch (err) {
@@ -226,6 +228,9 @@ a.post("/:id/reply", async (q, s) => {
       const ins = db.prepare(`INSERT INTO "${q.id}" VALUES (@ts, @t, @d);`);
       const ts = Date.now()
       ins.run({ ts, t, d });
+
+      tables.delete(q.id);
+      tables.add(q.id);
 
       s.redirect(`/${q.id}#t${ts}`);
     } catch (err) {
