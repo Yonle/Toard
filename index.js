@@ -3,19 +3,17 @@ const eps = require("express");
 const com = require("compression");
 const fig = require("figlet");
 const bp = require("body-parser");
+const c = require("./captcha");
 const f = require("fs");
 const a = eps();
 
 // For temporary time, We're gonna use this for main topic.
 // A upcoming commit will comes with channel support.
 
-let randm = str => str.split("\n").map(i => i.split("").map(i => (Math.random() * 12) > (9 + Math.floor(Math.random() * 2)) ? "." : i).join("")).join("\n");
 let getCookie = (c, n) => c && c.split("; ").filter(i => i.startsWith(n)).pop()?.slice(n.length+1);
 
 let db = new sql("database.db");
 let sys = new sql("config.db");
-let tmp = new sql("captcha_sessions.db");
-let tim = new Map();
 
 db.pragma("journal_mode = WAL");
 db.pragma('cache_size = 32000');
@@ -23,11 +21,6 @@ db.pragma('cache_size = 32000');
 sys.exec("CREATE TABLE IF NOT EXISTS ip_block (ip TEXT);");
 sys.exec("CREATE TABLE IF NOT EXISTS ip_white (ip TEXT);");
 sys.exec("CREATE TABLE IF NOT EXISTS config (name TEXT, value TEXT);");
-
-tmp.exec("DROP TABLE IF EXISTS verification_sessions;");
-tmp.exec("DROP TABLE IF EXISTS verified_sessions;");
-tmp.exec("CREATE TABLE IF NOT EXISTS verification_sessions (sess TEXT, stage INT, question TEXT, answer TEXT, body TEXT, onid TEXT);");
-tmp.exec("CREATE TABLE IF NOT EXISTS verified_sessions (sess TEXT);");
 
 let tables = new Set(db.prepare("SELECT name FROM sqlite_schema;").all().map(i => i.name));
 let newPostsFromIP = {};
@@ -86,28 +79,8 @@ a.post("/create", async (q, s) => {
     const { t, d } = q.body;
     if (!t || !d || !t.length || !d.length) return s.status(400).end("Invalid Body");
 
-    if (q.ct && !q.wl) {
-      const sess = tmp.prepare("INSERT INTO verification_sessions VALUES (@sess, @stage, @question, @answer, @body, @onid)");
-      let sessID = Buffer.from(q.ip + Date.now() + Math.random().toString(36), "base64").toString("hex");
-      let question = Math.random().toString(36).slice(2);
-      sess.run({
-        sess: sessID,
-        stage: 1,
-        question: "null",
-        answer: "null",
-        body: JSON.stringify(q.body),
-        onid: "create"
-      });
-
-      s.writeHead(302, {
-        "Set-Cookie": `verify_sess=${sessID}; SameSite=Strict; Path=/verify`,
-        "Location": "/verify"
-      }).end();
-
-      return tim.set(sessID, setTimeout(() => {
-        tmp.exec(`DELETE FROM verification_sessions WHERE sess = '${sessID}';`);
-      }, 60000 * 3));
-    }
+    if (q.ct && !q.wl)
+      return c.newCaptchaSession(q, s, "create");
 
     const id = (1000000 + tables.size - 2 + 1);
 
@@ -161,37 +134,9 @@ a.post("/search", async (q, s) => {
 });
 
 a.get("/api/verify", async(q, s) => {
-    const sessdb = tmp.prepare("SELECT * FROM verification_sessions WHERE sess = ?");
-    const sess = sessdb.get(q.getCookie("verify_sess"));
+    const sess = c.getCaptchaSession(q.getCookie("verify_sess"));
     if (!q.getCookie("verify_sess") || !sess) return s.status(400).end("Session expired. try again.");
-    const ses = tmp.prepare(`UPDATE verification_sessions SET question = ?, answer = ? WHERE sess = ?;`);
-
-    switch (sess.stage) {
-      case 1: {
-        const answer = Math.random().toString(36).slice(2, 8);
-        const question = randm(fig.textSync(answer.split("").join(" ")));
-        ses.run(question, answer, sess.sess);
-
-        s.json({
-          q: question,
-          t: "Solve the captcha."
-        });
-        break;
-      }
-
-      case 2: {
-        const mathquestion = `${Math.floor(Math.random() * 50)}+${Math.floor(Math.random() * 50)}`
-        const question = randm(fig.textSync(mathquestion.split("").join(" ")));
-
-        ses.run(question, eval(mathquestion).toString(), sess.sess);
-
-        s.json({
-          q: question,
-          t: "Solve the math."
-        });
-        break;
-      }
-    }
+    return s.json(c.getNewQuestion(sess));
 });
 
 a.get("/api/:id", async (q, s) => {
@@ -208,51 +153,16 @@ a.get("/api/:id", async (q, s) => {
 a.get("/api", async (q, s) => s.json(tables));
 
 a.get("/verify", async (q, s) => {
-    const sessdb = tmp.prepare("SELECT * FROM verification_sessions WHERE sess = ?");
-    const sess = sessdb.get(q.getCookie("verify_sess"));
+    const sess = c.getCaptchaSession(q.getCookie("verify_sess"));
     if (!q.getCookie("verify_sess") || !sess) return s.status(400).end("Session expired. try again.");
-    const ses = tmp.prepare(`UPDATE verification_sessions SET question = ?, answer = ? WHERE sess = ?;`);
-
-    switch (sess.stage) {
-      case 1: {
-        const answer = Math.random().toString(36).slice(2, 8);
-        const question = randm(fig.textSync(answer.split("").join(" ")));
-        ses.run(question, answer, sess.sess);
-
-        s.render("verify.ejs", {
-          q: question,
-          t: "Solve the captcha."
-        });
-        break;
-      }
-
-      case 2: {
-        const mathquestion = `${Math.floor(Math.random() * 50)}+${Math.floor(Math.random() * 50)}`
-        const question = randm(fig.textSync(mathquestion.split("").join(" ")));
-
-        ses.run(question, eval(mathquestion).toString(), sess.sess);
-
-        s.render("verify.ejs", {
-          q: question,
-          t: "Solve the math."
-        });
-        break;
-      }
-    }
+    return s.render("verify.ejs", c.getNewQuestion(sess));
 });
 
 a.post("/verify", (q, s) => {
-    const sessdb = tmp.prepare("SELECT * FROM verification_sessions WHERE sess = ?");
-    let sess = sessdb.get(q.getCookie("verify_sess"));
-    if (!q.getCookie("verify_sess") || !sess || sess.question === "null" || sess.answer === "null") return s.redirect("/");
+    let sess = c.getCaptchaSession(q.getCookie("verify_sess"));
+    if (!q.getCookie("verify_sess") || !sess || sess.question === "null" || sess.answer === "null") return s.status(400).end("Session expired. try again");
 
-    if (q.body.answer === sess.answer) {
-      if (sess.stage === 1) {
-        const ses = tmp.prepare(`UPDATE verification_sessions SET stage = ? WHERE sess = ?;`);
-        ses.run(2, sess.sess);
-        return s.redirect("/verify");
-      }
-
+    if (c.verifyCaptchaAnswer(sess, q.body?.answer)) {
       let { t, d } = JSON.parse(sess.body);
       if (!d || !d.length) return s.status(400).end("Invalid Body");
       if (!t) t = "Anonymous";
@@ -267,10 +177,6 @@ a.post("/verify", (q, s) => {
         const ins = db.prepare(`INSERT INTO "${sess.onid}" VALUES (@ts, @t, @d);`);
         const ts = Date.now();
         ins.run({ ts, t, d });
-
-        tmp.exec(`DELETE FROM verification_sessions WHERE sess = '${sess.sess}';`);
-        clearTimeout(tim.get(sess.sess));
-        tim.delete(sess.sess);
 
         s.redirect(`/${sess.onid}#t${ts}`);
       } catch (err) {
@@ -308,28 +214,8 @@ a.get("/:id", async (q, s) => {
 
 a.post("/:id/reply", async (q, s) => {
     if (["hello_there", "toard_api", "search"].includes(q.id)) return s.status(400).end("Post is not replyable.");
-    if (q.ct && !q.wl) {
-      const sess = tmp.prepare("INSERT INTO verification_sessions VALUES (@sess, @stage, @question, @answer, @body, @onid)");
-      let sessID = Buffer.from(q.ip + Date.now() + Math.random().toString(36), "base64").toString("hex");
-      let question = Math.random().toString(36).slice(2);
-      sess.run({
-        sess: sessID,
-        stage: 1,
-        question: "null",
-        answer: "null",
-        body: JSON.stringify(q.body),
-        onid: q.id
-      });
-
-      s.writeHead(302, {
-        "Set-Cookie": `verify_sess=${sessID}; SameSite=Strict; Path=/verify`,
-        "Location": "/verify"
-      }).end();
-
-      return tim.set(sessID, setTimeout(() => {
-        tmp.exec(`DELETE FROM verification_sessions WHERE sess = '${sessID}';`);
-      }, 60000 * 3));
-    }
+    if (q.ct && !q.wl)
+      return c.newCaptchaSession(q, s, q.id);
 
     let { t, d } = q.body;
     if (!d || !d.length) return s.status(400).end("Invalid Body");
