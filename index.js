@@ -18,12 +18,44 @@ let sys = new sql("config.db");
 db.pragma("journal_mode = WAL");
 db.pragma('cache_size = 32000');
 
+db.exec("CREATE TABLE IF NOT EXISTS __threadlists (id TEXT, UNIQUE(id));");
+
+const __tl_sqlite_schema = db.prepare("SELECT name FROM sqlite_schema;");
+const ita = _ => db.prepare("SELECT id FROM __threadlists WHERE id = ?;").get(_); // Is thread available?
+
+db.transaction(_ => {
+  try {
+    __tl_sqlite_schema.all().forEach(i => {
+      if (!i.name || i.name.startsWith("_") || i.name.startsWith("sqlite_")) return;
+      db.prepare("INSERT OR IGNORE INTO __threadlists VALUES (?);").run(i.name);
+    });
+  } catch (err) {
+    console.log(err);
+    if (!db.inTransaction) throw err;
+  }
+})();
+
 sys.exec("CREATE TABLE IF NOT EXISTS ip_block (ip TEXT);");
 sys.exec("CREATE TABLE IF NOT EXISTS ip_white (ip TEXT);");
 sys.exec("CREATE TABLE IF NOT EXISTS config (name TEXT, value TEXT);");
 
-let tables = new Set(db.prepare("SELECT name FROM sqlite_schema;").all().map(i => i.name));
+let ts = db.prepare("SELECT id FROM __threadlists;").all().length;
 let newPostsFromIP = {};
+
+let lth = _ => db.prepare("SELECT id FROM __threadlists;").all().map(({ id }) => {
+  try {
+    let t = db.prepare(`SELECT ts, t, d FROM "${id}";`).all();
+    t[0].id = id;
+    t[0].length = t.length;
+    return t[0];
+  } catch (err) {
+    console.error(err);
+    console.error(`--- /${id}/ is corrupted. Deleting.`);
+    db.prepare("DELETE FROM __threadlists WHERE id = ?;").run(id);
+    db.exec(`DROP TABLE '${id}';`);
+    return null;
+  }
+}).filter(i => i);
 
 a.use(com());
 a.use((q, s, n) => {
@@ -82,11 +114,11 @@ a.post("/create", async (q, s) => {
     if (q.ct && !q.wl)
       return c.newCaptchaSession(q, s, "create");
 
-    const id = (1000000 + tables.size - 2 + 1);
+    const id = (1000000 + ts - 2 + 1);
 
     db.exec(`CREATE TABLE "${id}" (ts INTEGER, t TEXT, d TEXT);`);
-
-    tables.add(id.toString());
+    db.prepare("INSERT OR IGNORE INTO __threadlists VALUES (?);").run(id.toString());
+    ts++;
 
     const ins = db.prepare(`INSERT INTO "${id}" VALUES (@ts, @t, @d);`);
     ins.run({ ts: Date.now(), t, d });
@@ -100,14 +132,14 @@ a.post("/search", async (q, s) => {
     q.body.q = q.body.q.toLowerCase();
 
     let fnd = [];
-    tables.forEach(id => {
-      let thr = db.prepare(`SELECT * from "${id}";`);
+    db.prepare("SELECT id FROM __threadlists;").all().forEach(th => {
+      let thr = db.prepare(`SELECT * from "${th.id}";`);
 
-      for (let i of thr.iterate()) {
-        i.id = id;
+      for (let i of thr.all()) {
+        i.id = th.id;
         if (i.t.toLowerCase().includes(q.body.q) || i.d.toLowerCase().includes(q.body.q)) return fnd.push(i);
       }
-    });
+    });;
 
     fnd.unshift({
       t: "Showing results for: " + q.body.q,
@@ -124,12 +156,7 @@ a.post("/search", async (q, s) => {
     }];
 
     s.render("index.ejs", {
-      pst: fnd, id: "search", srch: q.body.q, ct: q.ct, bds: Array.from(tables).map(id => {
-        let t = db.prepare(`SELECT ts, t, d FROM "${id}";`).all();
-        t[0].id = id;
-        t[0].length = t.length;
-        return t[0];
-      })
+      pst: fnd, id: "search", srch: q.body.q, ct: q.ct, bds: lth()
     });
 });
 
@@ -140,7 +167,7 @@ a.get("/api/verify", async(q, s) => {
 });
 
 a.get("/api/:id", async (q, s) => {
-    if (!tables.has(q.params.id)) return s.status(404).json({ error: "Not Found" });
+    if (!ita(q.params.id)) return s.status(404).json({ error: "Not Found" });
     let thread = db.prepare(`SELECT * FROM "${q.params.id.toLowerCase()}";`).all();
 
     if (!isNaN(parseInt(q.query.from)) && parseInt(q.query.from) > -1) {
@@ -169,16 +196,17 @@ a.post("/verify", (q, s) => {
 
       try {
         if (sess.onid === "create") {
-          sess.onid = (1000000 + tables.size - 2 + 1);
+          sess.onid = (1000000 + ts - 2 + 1);
           db.exec(`CREATE TABLE "${sess.onid}" (ts INTEGER, t TEXT, d TEXT);`);
+          ts++;
         }
 
         const ins = db.prepare(`INSERT INTO "${sess.onid}" VALUES (@ts, @t, @d);`);
         const ts = Date.now();
         ins.run({ ts, t, d });
 
-        tables.delete(sess.onid.toString());
-        tables.add(sess.onid.toString());
+        db.prepare(`DELETE FROM __threadlists WHERE id = ?;`).run(sess.onid.toString());
+        db.prepare("INSERT OR IGNORE INTO __threadlists VALUES (?);").run(sess.onid.toString());
 
         s.redirect(`/${sess.onid}#t${ts}`);
       } catch (err) {
@@ -192,7 +220,7 @@ a.post("/verify", (q, s) => {
 
 a.use("/:id", async (q, s, n) => {
     if (q.params.id === "verify") return n();
-    if (tables.has(q.params.id)) {
+    if (ita(q.params.id)) {
         q.id = q.params.id.toLowerCase();
         try {
           q.table = db.prepare(`SELECT * FROM "${q.id}"`);
@@ -205,12 +233,7 @@ a.use("/:id", async (q, s, n) => {
 
 a.get("/:id", async (q, s) => {
     s.render("index.ejs", {
-        pst: q.table.iterate(), id: q.id, srch: false, ct: q.ct, bds: Array.from(tables).map(id => {
-          let t = db.prepare(`SELECT ts, t, d FROM "${id}";`).all();
-          t[0].id = id;
-          t[0].length = t.length;
-          return t[0];
-        })
+        pst: q.table.all(), id: q.id, srch: false, ct: q.ct, bds: lth()
     });
 });
 
@@ -229,8 +252,8 @@ a.post("/:id/reply", async (q, s) => {
       const ts = Date.now()
       ins.run({ ts, t, d });
 
-      tables.delete(q.id);
-      tables.add(q.id);
+      db.prepare(`DELETE FROM __threadlists WHERE id = ?;`).run(q.id);
+      db.prepare("INSERT OR IGNORE INTO __threadlists VALUES (?);").run(q.id);
 
       s.redirect(`/${q.id}#t${ts}`);
     } catch (err) {
