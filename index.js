@@ -213,12 +213,12 @@ a.get("/:id", async (q, s) => {
 });
 
 a.post("/:id/reply", async (q, s) => {
+    let { t, d } = q.body;
+    if (!d || !d.length) return s.status(400).end("Invalid Body");
+
     if (["hello_there", "toard_api", "search"].includes(q.id)) return s.status(400).end("Post is not replyable.");
     if (q.ct && !q.wl)
       return c.newCaptchaSession(q, s, q.id);
-
-    let { t, d } = q.body;
-    if (!d || !d.length) return s.status(400).end("Invalid Body");
 
     if (!t) t = "Anonymous";
 
