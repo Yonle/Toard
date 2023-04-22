@@ -23,7 +23,7 @@ module.exports.newCaptchaSession = function (q, s, onid) {
 
   s.writeHead(302, {
     "Set-Cookie": `verify_sess=${sessID}; SameSite=Strict; Path=/verify`,
-     "Location": "/verify"
+    "Location": "/verify"
   }).end();
 
   return tim.set(sessID, setTimeout(() => {
