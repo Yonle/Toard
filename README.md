@@ -63,7 +63,9 @@ To disable, Simply delete the column.
 sqlite3> DELETE FROM config WHERE name = 'captcha';
 ```
 
+#### Also remember to do backup.
+
 ## Community
 * Telegram: https://t.me/yonlecoder
-
+* #yonle at irc.lecturify.net
 
