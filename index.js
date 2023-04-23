@@ -125,13 +125,13 @@ a.post("/create", async (q, s) => {
     if (q.ct && !q.wl)
       return c.newCaptchaSession(q, s, "create");
 
-    const id = (1000000 + ths - 2 + 1);
+    const id = (1000000 + ths - 2 + 1) + "_" + Date.now() + "_" + Math.random().toString(36).slice(2);
 
-    db.exec(`CREATE TABLE "${id}" (ts INTEGER, t TEXT, d TEXT);`);
+    db.exec(`CREATE TABLE '${id}' (ts INTEGER, t TEXT, d TEXT);`);
     db.prepare("INSERT OR IGNORE INTO __threadlists VALUES (?);").run(id.toString());
     ths++;
 
-    const ins = db.prepare(`INSERT INTO "${id}" VALUES (@ts, @t, @d);`);
+    const ins = db.prepare(`INSERT INTO '${id}' VALUES (@ts, @t, @d);`);
     ins.run({ ts: Date.now(), t, d });
 
     s.redirect("/" + id);
@@ -144,7 +144,7 @@ a.post("/search", async (q, s) => {
 
     let fnd = [];
     for (th of db.prepare("SELECT id FROM __threadlists;").iterate()) {
-      for (let i of db.prepare(`SELECT * from "${th.id}";`).iterate()) {
+      for (let i of db.prepare(`SELECT * from '${th.id}';`).iterate()) {
         i.id = th.id;
         if (i.t.toLowerCase().includes(q.body.q) || i.d.toLowerCase().includes(q.body.q)) return fnd.push(i);
       }
@@ -177,9 +177,9 @@ a.get("/api/verify", async(q, s) => {
 
 a.get("/api/:id", async (q, s) => {
     if (!ita(q.params.id)) return s.status(404).json({ error: "Not Found" });
-    let thread = db.prepare(`SELECT * FROM "${q.params.id.toLowerCase()}";`).all();
+    let thread = db.prepare(`SELECT * FROM '${q.params.id.toLowerCase()}';`).all();
 
-    if (!isNaN(parseInt(q.query.from)) && parseInt(q.query.from) > -1) {
+    if (!isNaN(parseInt(q.query.from)) && parseInt(q.query.from) >= 0) {
       thread = thread.slice(parseInt(q.query.from));
     }
 
@@ -205,7 +205,7 @@ a.post("/verify", (q, s) => {
 
       try {
         if (sess.onid === "create") {
-          sess.onid = (1000000 + ths - 2 + 1);
+          sess.onid = (1000000 + ths - 2 + 1) + "_" + Date.now() + "_" + Math.random().toString(36).slice(2);
           db.exec(`CREATE TABLE '${sess.onid}' (ts INTEGER, t TEXT, d TEXT);`);
           ths++;
         }
