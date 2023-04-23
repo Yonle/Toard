@@ -68,6 +68,19 @@ module.exports.getNewQuestion = function (sess) {
 
       break;
     }
+
+    case 3: {
+      const question = Buffer.from("4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qGA4qCk4qCA4qCE4qKA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCACuKggOKggOKggOKggOKggOKggOKggOKhoOKip+KjvuKjt+Kjv+Kjv+KjteKjv+KjhOKggOKggOKggOKggOKggOKggArioIDioIDioIDioIDioIDioIDiorDiorHiob/ioJ/ioJvioJvioInioJnior/io7/ioIDioIDioIDioIDioIDioIAK4qCA4qCA4qCA4qCA4qCA4qCA4qK44qO/4qGH4qOk4qOk4qGA4qKg4qGE4qO44qK/4qCA4qCA4qCA4qCA4qCA4qCACuKggOKggOKggOKggOKggOKggOKiqOKhvOKhh+KgiOKgieKjoeKggOKgieKiiOKjnuKggOKggOKggOKggOKggOKggArioIDioIDioIDioIDioIDioIDioIjioLHioqLioYTioIDio6zio6TioIDio77ioIvioIDioIDioIDioIDioIDioIAK4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qKA4qGO4qGH4qCA4qCI4qO/4qK74qGL4qCA4qCA4qCA4qCA4qCA4qCA4qCACuKggOKggOKggOKggOKjgOKjpOKjtuKjv+Kjp+Kig+KggOKgoOKjtuKjv+Kiu+KjtuKjpOKjpOKjgOKggOKggOKggAriooDio6Tio7bio7/io7/io7/io7/io7/io7/ioaTioLHiooDio7nioIvioIjio7/io7/io7/io7/io7/io6bioIAK4qO+4qO/4qO/4qO/4qO/4qG/4qKb4qO/4qO/4qOn4qOU4qOC4qOE4qCg4qO04qO/4qO/4qO/4qO/4qO/4qO/4qGHCuKhv+Kjv+Kjv+Kjv+Kjv+Kjs+Kgq+KgiOKjmeKju+Khp+KglOKiuuKjm+Kjv+Kjv+Kjv+Kjv+Kjv+Kjv+Kjv+Khhwrio7/io7/io7/io7/io7/ioITioIDiooDio6jio7/ioa/ioK3ioq3io7bio7/io7/io7/io7/io7/io7/io7/ioYc=", "base64").toString();
+
+      updateSession.run(question, "rick astley", sess.sess);
+
+      return {
+        q: question,
+        t: "Who is this?"
+      }
+
+      break;
+    }
   }
 }
 
@@ -76,6 +89,10 @@ module.exports.verifyCaptchaAnswer = function (sess, answer) {
   if (sess.stage === 1) {
     const ses = db.prepare(`UPDATE verification_sessions SET stage = ? WHERE sess = ?;`);
     ses.run(2, sess.sess);
+    return false;
+  } else if (sess.stage === 2) {
+    const ses = db.prepare(`UPDATE verification_sessions SET stage = ? WHERE sess = ?;`);
+    ses.run(3, sess.sess);
     return false;
   }
 
