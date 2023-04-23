@@ -5,8 +5,8 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="<%= bds.find(i => i.id === id)?.d || pst[0].d %>" />
-    <title>/<%= id %>/ - <%= bds.find(i => i.id === id)?.t || pst[0].t %></title>
+    <meta name="description" content="<%= bds.find(i => i[0]?.id === id)[0]?.d || pst[0]?.d || `Showing Thread /${id}/` %>" />
+    <title>/<%= id %>/ - <%= bds.find(i => i[0]?.id === id)[0]?.t || pst[0]?.t || "Toard" %></title>
     <link rel="stylesheet" href="style.css" />
   </head>
 
@@ -25,7 +25,7 @@
       <div class="post" id="t<%= p.ts %>">
         <div>
           <b><a href="<%= srch ? "/" + p.id + "#t" + p.ts : "#t" + p.ts %>"><%= p.t %></a></b>
-          <span class="date"><%- srch ? `at <a href="/${p.id}">/${p.id}/</a> - ` : "" %><%= (new Date(p.ts)).toLocaleString("ia") %></span>
+          <small class="date"><%- srch ? `at <a href="/${p.id}">/${p.id}/</a> - ` : "" %><%= (new Date(p.ts)).toLocaleString("ia") %></small>
         </div>
         <pre><%= p.d %></pre>
       </div>
@@ -124,19 +124,31 @@
           href="#"
           >Hide</a
         ><br />
-        <span class="fixed"
-          >There's <b><%= Object.keys(bds).length %> threads</b> in this
+        <span
+          >There are <b><%= Object.keys(bds).length %> threads</b> in this
           server.</span
         >
 
         <br /><br />
         <div>
           <% bds.reverse().forEach(i => { %>
+          <% if (!i[0].id) return %>
           <div class="post">
             <b class="top left"
-              ><a href="/<%= i.id %>"><%= i.t %></a></b
-            > <span class="date"><%= i.length - 1 %> replies - <%= (new Date(i.ts)).toLocaleDateString("ia") %></span><br>
-            <pre><%= i.d %></pre>
+              ><a href="/<%= i[0].id %>"><%= i[0].t %></a></b
+            > <small class="date"><%= i[0].length - 1 %> replies - <%= (new Date(i[0].ts)).toLocaleString("ia") %></small><br>
+            <pre><%= i[0].d %></pre>
+          </div>
+          <!--- Replies --->
+          <div class="replies">
+          <% i.slice((i.length > 5) ? (i.length - 5) : 1).forEach(r => { %>
+            <div class="post">
+              <b class="top left"
+                ><a href="/<%= i[0].id %>#t<%= r.ts %>"><%= r.t %></a></b
+              > <small class="date"><%= (new Date(r.ts)).toLocaleString("ia") %></small><br>
+              <pre><%= r.d %></pre>
+            </div>
+          <% }); %>
           </div>
           <% }); %>
         </div>

@@ -58,7 +58,7 @@ let lth = _ => db.prepare("SELECT id FROM __threadlists;").all().map(({ id }) =>
     let t = db.prepare(`SELECT ts, t, d FROM "${id}";`).all();
     t[0].id = id;
     t[0].length = t.length;
-    return t[0];
+    return t;
   } catch (err) {
     console.error(err);
     console.error(`--- /${id}/ is corrupted. Deleting.`);

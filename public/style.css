@@ -69,6 +69,10 @@ a {
   margin-bottom: 6px;
 }
 
+.replies {
+  margin-left: 15px;
+}
+
 #posts, #components {
   text-align: left;
 }
