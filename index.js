@@ -120,7 +120,7 @@ a.use(bp.json());
 a.get("/", (q, s) => s.redirect("/hello_there"));
 a.post("/create", async (q, s) => {
     const { t, d } = q.body;
-    if (!t || !d || !t.length || !d.length) return s.status(400).end("Invalid Body");
+    if (typeof(t) !== 'string' || typeof(d) !== 'string' || !t.length || !d.length) return s.status(400).end("Invalid Body");
 
     if (q.ct && !q.wl)
       return c.newCaptchaSession(q, s, "create");
@@ -198,7 +198,7 @@ a.post("/verify", (q, s) => {
     let sess = c.getCaptchaSession(q.getCookie("verify_sess"));
     if (!q.getCookie("verify_sess") || !sess || sess.question === "null" || sess.answer === "null") return s.status(400).end("Session expired. try again");
 
-    if (c.verifyCaptchaAnswer(sess, q.body?.answer)) {
+    if (typeof(q.body?.answer) === 'string' && c.verifyCaptchaAnswer(sess, q.body?.answer)) {
       let { t, d } = JSON.parse(sess.body);
       if (!d || !d.length) return s.status(400).end("Invalid Body");
       if (!t) t = "Anonymous";
@@ -253,7 +253,7 @@ a.get("/:id", async (q, s) => {
 
 a.post("/:id/reply", async (q, s) => {
     let { t, d } = q.body;
-    if (!d || !d.length) return s.status(400).end("Invalid Body");
+    if (typeof(d) !== 'string' || !d.length || (t && typeof(t) !== 'string')) return s.status(400).end("Invalid Body");
 
     if (["hello_there", "toard_api", "search"].includes(q.id)) return s.status(400).end("Post is not replyable.");
     if (q.ct && !q.wl)
