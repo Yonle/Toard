@@ -186,7 +186,7 @@ a.get("/api/:id", async (q, s) => {
     s.json(thread);
 });
 
-a.get("/api", async (q, s) => s.json(tables));
+a.get("/api", async (q, s) => s.json(db.prepare("SELECT id FROM __threadlists;").all()));
 
 a.get("/verify", async (q, s) => {
     const sess = c.getCaptchaSession(q.getCookie("verify_sess"));
