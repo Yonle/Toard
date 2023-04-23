@@ -165,7 +165,7 @@ a.post("/search", async (q, s) => {
     }];
 
     s.render("index.ejs", {
-      pst: fnd, id: "search", srch: q.body.q, ct: q.ct, bds: lth()
+      pst: fnd, id: "search", srch: q.body.q, ct: q.ct, t: fnd[0]
     });
 });
 
@@ -206,11 +206,11 @@ a.post("/verify", (q, s) => {
       try {
         if (sess.onid === "create") {
           sess.onid = (1000000 + ths - 2 + 1);
-          db.exec(`CREATE TABLE "${sess.onid}" (ts INTEGER, t TEXT, d TEXT);`);
+          db.exec(`CREATE TABLE '${sess.onid}' (ts INTEGER, t TEXT, d TEXT);`);
           ths++;
         }
 
-        const ins = db.prepare(`INSERT INTO "${sess.onid}" VALUES (@ts, @t, @d);`);
+        const ins = db.prepare(`INSERT INTO '${sess.onid}' VALUES (@ts, @t, @d);`);
         const ts = Date.now();
         ins.run({ ts, t, d });
 
@@ -227,12 +227,16 @@ a.post("/verify", (q, s) => {
     }
 });
 
+a.get("/discover", (q, s) => {
+  s.render("discover.ejs", { bds: lth(), host: q.headers.host });
+});
+
 a.use("/:id", async (q, s, n) => {
     if (q.params.id === "verify") return n();
     if (ita(q.params.id)) {
         q.id = q.params.id.toLowerCase();
         try {
-          q.table = db.prepare(`SELECT * FROM "${q.id}"`);
+          q.table = db.prepare(`SELECT * FROM '${q.id}'`);
           n();
         } catch (err) {
           return s.status(404).end("Not found or deleted");
@@ -241,8 +245,9 @@ a.use("/:id", async (q, s, n) => {
 });
 
 a.get("/:id", async (q, s) => {
+    const t = db.prepare(`SELECT * FROM '${q.id}';`).get();
     s.render("index.ejs", {
-        pst: q.table.iterate(), id: q.id, srch: false, ct: q.ct, bds: lth()
+        pst: q.table.iterate(), id: q.id, srch: false, ct: q.ct, t
     });
 });
 
@@ -257,7 +262,7 @@ a.post("/:id/reply", async (q, s) => {
     if (!t) t = "Anonymous";
 
     try {
-      const ins = db.prepare(`INSERT INTO "${q.id}" VALUES (@ts, @t, @d);`);
+      const ins = db.prepare(`INSERT INTO '${q.id}' VALUES (@ts, @t, @d);`);
       const ts = Date.now()
       ins.run({ ts, t, d });
 

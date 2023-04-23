@@ -5,8 +5,8 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="<%= bds.find(i => i[0]?.id === id)[0]?.d || pst[0]?.d || `Showing Thread /${id}/` %>" />
-    <title>/<%= id %>/ - <%= bds.find(i => i[0]?.id === id)[0]?.t || pst[0]?.t || "Toard" %></title>
+    <meta name="description" content="<%= t.d %>" />
+    <title>/<%= id %>/ - <%= t.t %></title>
     <link rel="stylesheet" href="style.css" />
   </head>
 
@@ -31,7 +31,6 @@
       </div>
       <% }; %>
     </div>
-    <br /><br />
 
     <div id="components">
       <% if (!["hello_there", "toard_api", "search"].includes(id.toLowerCase())) { %>
@@ -108,60 +107,15 @@
         </button>
         <a style="color: black; background: white" href="#">Cancel</a>
         <small>Create new thread</small>
-      </form>
-
-      <!-- Discover Threads -->
-      <% if (bds) { %>
-      <div
-        id="browse"
-        class="fixed popup"
-        style="overflow-y: auto"
-      >
-        <b class="top left">Discover</b>
-        <a
-          class="top right fixed"
-          style="color: black; background: white"
-          href="#"
-          >Hide</a
-        ><br />
-        <span
-          >There are <b><%= Object.keys(bds).length %> threads</b> in this
-          server.</span
-        >
-
-        <br /><br />
-        <div>
-          <% bds.reverse().forEach(i => { %>
-          <% if (!i[0].id) return %>
-          <div class="post">
-            <b class="top left"
-              ><a href="/<%= i[0].id %>"><%= i[0].t %></a></b
-            > <small class="date"><%= i[0].length - 1 %> replies - <%= (new Date(i[0].ts)).toLocaleString("ia") %></small><br>
-            <pre><%= i[0].d %></pre>
-          </div>
-          <!--- Replies --->
-          <div class="replies">
-          <% i.slice((i.length > 5) ? (i.length - 5) : 1).forEach(r => { %>
-            <div class="post">
-              <b class="top left"
-                ><a href="/<%= i[0].id %>#t<%= r.ts %>"><%= r.t %></a></b
-              > <small class="date"><%= (new Date(r.ts)).toLocaleString("ia") %></small><br>
-              <pre><%= r.d %></pre>
-            </div>
-          <% }); %>
-          </div>
-          <% }); %>
-        </div>
-      </div>
-      <% } %> 
+      </form> 
     </div>
 
     <!-- Bottom Menus -->
     <div class="bottom fixed">
       <div class="left">
         <a href="/">Home</a>
-        <a href="#browse">Browse</a>
-        <a href="#reply">Reply</a>
+        <a href="/discover">Browse</a>
+        <% if (!["hello_there", "toard_api", "search"].includes(id.toLowerCase())) { %><a href="#reply">Reply</a><% } %>
       </div>
       <form action="/search" method="POST"><input
         class="fixed right"
@@ -244,8 +198,6 @@
         document.getElementById("reply_name").disabled = false;
         document.getElementById("reply_comment").disabled = false;
         document.getElementById("reply_button").disabled = false;
-
-        make({ t: decodeURIComponent(t) || "Anonymous", d: decodeURIComponent(d), ts: Date.now() });
       });
 
       xhr.addEventListener('error', submit);

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<!-- https://github.com/Yonle/Toard -->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Discover Threads in <% host %>" />
+    <title>Discover - <%= host %></title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <div id="top"></div>
+    <div class="fixed top">
+      <b class="top left">Discover</b><br>
+      <span>There are <b><%= Object.keys(bds).length %> threads</b> in this server.</span>
+    </div>
+    <a href="#create" class="fixed top right">New Thread</a>
+    
+    <div id="posts" style="overflow-y: auto; margin-top: 50px;"> 
+      <div style="margin-top: 15px;">
+        <% bds.reverse().forEach(i => { %>
+        <% if (!i[0].id) return %>
+        <div class="post">
+          <b class="top left">
+            <a href="/<%= i[0].id %>"><%= i[0].t %></a></b>
+            <small class="date"><%= i[0].length - 1 %> replies - <%= (new Date(i[0].ts)).toLocaleString("ia") %></small><br>
+          <pre><%= i[0].d %></pre>
+        </div>
+        <!--- Replies --->
+        <div class="replies">
+        <% i.slice((i.length > 5) ? (i.length - 5) : 1).forEach(r => { %>
+          <div class="post">
+            <b class="top left"
+              ><a href="/<%= i[0].id %>#t<%= r.ts %>"><%= r.t %></a></b
+            > <small class="date"><%= (new Date(r.ts)).toLocaleString("ia") %></small><br>
+            <pre><%= r.d %></pre>
+          </div>
+        <% }); %>
+        </div>
+        <% }); %>
+      </div>
+    </div>
+
+    <div id="components">
+      <!-- Post Creation -->
+      <form
+        id="create"
+        action="/create"
+        method="POST"
+        class="fixed left right popup"
+        style="bottom: 40px"
+      >
+        <div>
+          <input
+            style="width: 99%"
+            type="text"
+            name="t"
+            placeholder="Title"
+            required
+            autofocus
+          />
+        </div>
+        <textarea
+          style="width: 98%; height: 10vh"
+          name="d"
+          placeholder="Description"
+          required
+          autofocus
+        ></textarea
+        ><br />
+        <button
+          class="right"
+          style="float: right; color: black; background: white"
+          type="submit"
+        >
+          Create Thread
+        </button>
+        <a style="color: black; background: white" href="#">Cancel</a>
+        <small>Create new thread</small>
+      </form>
+    </div>
+
+    <!-- Bottom Menus -->
+    <div class="bottom fixed">
+      <div class="left">
+        <a href="/">Home</a>
+        <a href="/discover">Browse</a>
+      </div>
+      <form action="/search" method="POST"><input
+        class="fixed right"
+        name="q"
+        type="text"
+        placeholder="Search Post....",
+        required
+      /></form>
+    </div>
+
+    <div id="bottom"></div>
+  </body>
+</html>
