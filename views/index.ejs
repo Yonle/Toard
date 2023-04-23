@@ -25,7 +25,7 @@
       <div class="post" id="t<%= p.ts %>">
         <div>
           <b><a href="<%= srch ? "/" + p.id + "#t" + p.ts : "#t" + p.ts %>"><%= p.t %></a></b>
-          <span class="date"><%- srch ? `at <a href="/${p.id}">/${p.id}/</a> - ` : "" %><%= (new Date(p.ts)).toLocaleDateString("id") %></span>
+          <span class="date"><%- srch ? `at <a href="/${p.id}">/${p.id}/</a> - ` : "" %><%= (new Date(p.ts)).toLocaleString("ia") %></span>
         </div>
         <pre><%= p.d %></pre>
       </div>
@@ -135,7 +135,7 @@
           <div class="post">
             <b class="top left"
               ><a href="/<%= i.id %>"><%= i.t %></a></b
-            > <span class="date"><%= i.length - 1 %> replies - <%= (new Date(i.ts)).toLocaleDateString("id") %></span><br>
+            > <span class="date"><%= i.length - 1 %> replies - <%= (new Date(i.ts)).toLocaleDateString("ia") %></span><br>
             <pre><%= i.d %></pre>
           </div>
           <% }); %>
@@ -182,7 +182,7 @@
       a.href = "#t" + data.ts;
       b.appendChild(a);
 
-      span.innerText = (new Date(data.ts)).toLocaleDateString("id");
+      span.innerText = (new Date(data.ts)).toLocaleString("ia");
       span.classList.add("date");
       borderTop.appendChild(b);
       borderTop.appendChild(span);
@@ -232,6 +232,8 @@
         document.getElementById("reply_name").disabled = false;
         document.getElementById("reply_comment").disabled = false;
         document.getElementById("reply_button").disabled = false;
+
+        make({ t: decodeURIComponent(t) || "Anonymous", d: decodeURIComponent(d), ts: Date.now() });
       });
 
       xhr.addEventListener('error', submit);
