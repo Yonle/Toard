@@ -49,7 +49,7 @@ sys.exec("CREATE TABLE IF NOT EXISTS ip_block (ip TEXT);");
 sys.exec("CREATE TABLE IF NOT EXISTS ip_white (ip TEXT);");
 sys.exec("CREATE TABLE IF NOT EXISTS config (name TEXT, value TEXT);");
 
-let ts = db.prepare("SELECT id FROM __threadlists;").all().length;
+let ths = db.prepare("SELECT id FROM __threadlists;").all().length;
 let newPostsFromIP = {};
 
 let lth = _ => db.prepare("SELECT id FROM __threadlists;").all().map(({ id }) => {
@@ -125,11 +125,11 @@ a.post("/create", async (q, s) => {
     if (q.ct && !q.wl)
       return c.newCaptchaSession(q, s, "create");
 
-    const id = (1000000 + ts - 2 + 1);
+    const id = (1000000 + ths - 2 + 1);
 
     db.exec(`CREATE TABLE "${id}" (ts INTEGER, t TEXT, d TEXT);`);
     db.prepare("INSERT OR IGNORE INTO __threadlists VALUES (?);").run(id.toString());
-    ts++;
+    ths++;
 
     const ins = db.prepare(`INSERT INTO "${id}" VALUES (@ts, @t, @d);`);
     ins.run({ ts: Date.now(), t, d });
@@ -205,9 +205,9 @@ a.post("/verify", (q, s) => {
 
       try {
         if (sess.onid === "create") {
-          sess.onid = (1000000 + ts - 2 + 1);
+          sess.onid = (1000000 + ths - 2 + 1);
           db.exec(`CREATE TABLE "${sess.onid}" (ts INTEGER, t TEXT, d TEXT);`);
-          ts++;
+          ths++;
         }
 
         const ins = db.prepare(`INSERT INTO "${sess.onid}" VALUES (@ts, @t, @d);`);
