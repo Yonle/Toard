@@ -89,8 +89,8 @@ a.use((q, s, n) => {
   reqnum++;
 
   if (underattack) {
-    console.log(`!!! SERVER UNDER ATTACK !!!! (${reqnum} requests got DONG-ed so far)`);
-    return s.end("dong.");
+    console.log(`!!! SERVER UNDER ATTACK !!!! (${reqnum} connections destroyed)`);
+    return s.socket.destroy();
   }
 
   if (q.method === "POST" && bl.get(ip)) {
