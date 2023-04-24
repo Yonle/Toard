@@ -83,7 +83,7 @@ a.use((q, s, n) => {
   q.ct = cf.get("captcha"); // Whenever we enabled captcha or no
   q.getCookie = n => getCookie(q.headers.cookie, n);
 
-  if (wl.get(ip)) return next();
+  if (wl.get(ip)) return n();
   if (q.method === "POST" && bl.get(ip)) {
     console.log(ip, "is blocked.");
     return s.status(403).end("Dong.");
