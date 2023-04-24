@@ -138,7 +138,7 @@ a.post("/create", async (q, s) => {
 });
 
 a.post("/search", async (q, s) => {
-    if (!q.body.q || !q.body.q.length) return s.status(400).end("Invalid Body");
+    if (typeof(q.body.q) !== 'string' || !q.body.q?.length) return s.status(400).end("Invalid Body");
 
     q.body.q = q.body.q.toLowerCase();
 
