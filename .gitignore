@@ -2,6 +2,8 @@ node_modules
 __pages
 package-lock.json
 database.db
+database.db-shm
+database.db-wal
 config.db
 captcha_sessions.db
 db.json
