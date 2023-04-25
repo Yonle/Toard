@@ -38,6 +38,8 @@ db.transaction(_ => {
     for (i of db.prepare("SELECT name FROM sqlite_schema;").iterate()) {
       if (!i.name || i.name.startsWith("_") || i.name.startsWith("sqlite_")) return;
       db.prepare("INSERT OR IGNORE INTO __threadlists VALUES (?);").run(i.name);
+
+      p.checkAndGenerate(db, i.name);
     };
   } catch (err) {
     console.log(err);
