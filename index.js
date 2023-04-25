@@ -3,7 +3,8 @@ const eps = require("express");
 const com = require("compression");
 const fig = require("figlet");
 const bp = require("body-parser");
-const c = require("./captcha");
+const p = require("./pages.js");
+const c = require("./captcha.js");
 const f = require("fs");
 const a = eps();
 
@@ -30,12 +31,11 @@ db.pragma('cache_size = 32000');
 
 db.exec("CREATE TABLE IF NOT EXISTS __threadlists (id TEXT, UNIQUE(id));");
 
-const __tl_sqlite_schema = db.prepare("SELECT name FROM sqlite_schema;");
 const ita = _ => db.prepare("SELECT id FROM __threadlists WHERE id = ?;").get(_); // Is thread available?
 
 db.transaction(_ => {
   try {
-    for (i of __tl_sqlite_schema.iterate()) {
+    for (i of db.prepare("SELECT name FROM sqlite_schema;").iterate()) {
       if (!i.name || i.name.startsWith("_") || i.name.startsWith("sqlite_")) return;
       db.prepare("INSERT OR IGNORE INTO __threadlists VALUES (?);").run(i.name);
     };
@@ -120,14 +120,23 @@ a.use((q, s, n) => {
   n();
 });
 
+a.use((q, s, n) => {
+  f.stat(__dirname + "/__pages/discover.html", async e => {
+    if (e)
+      await p.generateDiscover(db, q.headers.host);
+    n();
+  });
+});
+
 a.set("views", __dirname + "/views");
 a.set("view engine", "ejs");
+a.use(eps.static(__dirname + "/__pages"));
 a.use(eps.static(__dirname + "/public"));
 a.use(bp.urlencoded({ extended: true }));
 a.use(bp.json());
 
-a.get("/", (q, s) => s.redirect("/hello_there"));
-a.post("/create", async (q, s) => {
+a.get("/", (q, s) => s.redirect("/hello_there/"));
+a.post("/create", (q, s) => {
     const { t, d } = q.body;
     if (typeof(t) !== 'string' || typeof(d) !== 'string' || !t.length || !d.length) return s.status(400).end("Invalid Body");
 
@@ -143,10 +152,12 @@ a.post("/create", async (q, s) => {
     const ins = db.prepare(`INSERT INTO '${id}' VALUES (@ts, @t, @d);`);
     ins.run({ ts: Date.now(), t, d });
 
-    s.redirect("/" + id);
+    p.generate(db, id, q.headers?.host);
+
+    s.redirect("/" + id + "/");
 });
 
-a.post("/search", async (q, s) => {
+a.post("/search", (q, s) => {
     if (typeof(q.body.q) !== 'string' || !q.body.q?.length) return s.status(400).end("Invalid Body");
 
     q.body.q = q.body.q.toLowerCase();
@@ -178,13 +189,13 @@ a.post("/search", async (q, s) => {
     });
 });
 
-a.get("/api/verify", async(q, s) => {
+a.get("/api/verify", (q, s) => {
     const sess = c.getCaptchaSession(q.getCookie("verify_sess"));
     if (!q.getCookie("verify_sess") || !sess) return s.status(400).end("Session expired. try again.");
     return s.json(c.getNewQuestion(sess));
 });
 
-a.get("/api/:id", async (q, s) => {
+a.get("/api/:id", (q, s) => {
     if (!ita(q.params.id)) return s.status(404).json({ error: "Not Found" });
     let thread = db.prepare(`SELECT * FROM '${q.params.id.toLowerCase()}';`).all();
 
@@ -195,9 +206,9 @@ a.get("/api/:id", async (q, s) => {
     s.json(thread);
 });
 
-a.get("/api", async (q, s) => s.json(db.prepare("SELECT id FROM __threadlists;").all()));
+a.get("/api", (q, s) => s.json(db.prepare("SELECT id FROM __threadlists;").all()));
 
-a.get("/verify", async (q, s) => {
+a.get("/verify", (q, s) => {
     const sess = c.getCaptchaSession(q.getCookie("verify_sess"));
     if (!q.getCookie("verify_sess") || !sess) return s.status(400).end("Session expired. try again.");
     return s.render("verify.ejs", c.getNewQuestion(sess));
@@ -226,7 +237,9 @@ a.post("/verify", (q, s) => {
         db.prepare(`DELETE FROM __threadlists WHERE id = ?;`).run(sess.onid.toString());
         db.prepare("INSERT OR IGNORE INTO __threadlists VALUES (?);").run(sess.onid.toString());
 
-        s.redirect(`/${sess.onid}#t${ts}`);
+        p.generate(db, id, q.headers?.host);
+
+        s.redirect(`/${sess.onid}/#t${ts}`);
       } catch (err) {
         console.error(err);
         s.status(500).end(err.toString());
@@ -236,31 +249,15 @@ a.post("/verify", (q, s) => {
     }
 });
 
-a.get("/discover", (q, s) => {
-  s.render("discover.ejs", { bds: lth(), host: q.headers.host });
-});
-
-a.use("/:id", async (q, s, n) => {
+a.use("/:id/reply", (q, s, n) => {
     if (q.params.id === "verify") return n();
     if (ita(q.params.id)) {
         q.id = q.params.id.toLowerCase();
-        try {
-          q.table = db.prepare(`SELECT * FROM '${q.id}'`);
-          n();
-        } catch (err) {
-          return s.status(404).end("Not found or deleted");
-        }
+        n();
     } else s.status(404).end("Not found or deleted");
 });
 
-a.get("/:id", async (q, s) => {
-    const t = db.prepare(`SELECT * FROM '${q.id}';`).get();
-    s.render("index.ejs", {
-        pst: q.table.iterate(), id: q.id, srch: false, ct: q.ct, t
-    });
-});
-
-a.post("/:id/reply", async (q, s) => {
+a.post("/:id/reply", (q, s) => {
     let { t, d } = q.body;
     if (typeof(d) !== 'string' || !d.length || (t && typeof(t) !== 'string')) return s.status(400).end("Invalid Body");
 
@@ -278,7 +275,9 @@ a.post("/:id/reply", async (q, s) => {
       db.prepare(`DELETE FROM __threadlists WHERE id = ?;`).run(q.id);
       db.prepare("INSERT OR IGNORE INTO __threadlists VALUES (?);").run(q.id);
 
-      s.redirect(`/${q.id}#t${ts}`);
+      p.generate(db, q.id, q.headers?.host);
+
+      s.redirect(`/${q.id}/#t${ts}`);
     } catch (err) {
       s.status(500).end(err.toString());
       console.error(err);

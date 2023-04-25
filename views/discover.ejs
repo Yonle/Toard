@@ -24,7 +24,7 @@
         <% if (!i[0].id) return %>
         <div class="post">
           <b class="top left">
-            <a href="/<%= i[0].id %>"><%= i[0].t %></a></b>
+            <a href="/<%= i[0].id %>/"><%= i[0].t %></a></b>
             <small class="date"><%= i[0].length - 1 %> replies - <%= (new Date(i[0].ts)).toLocaleString("ia") %></small><br>
           <pre><%= i[0].d %></pre>
         </div>
@@ -33,7 +33,7 @@
         <% i.slice((i.length > 5) ? (i.length - 5) : 1).forEach(r => { %>
           <div class="post">
             <b class="top left"
-              ><a href="/<%= i[0].id %>#t<%= r.ts %>"><%= r.t %></a></b
+              ><a href="/<%= i[0].id %>/#t<%= r.ts %>"><%= r.t %></a></b
             > <small class="date"><%= (new Date(r.ts)).toLocaleString("ia") %></small><br>
             <pre><%= r.d %></pre>
           </div>
@@ -86,7 +86,7 @@
     <div class="bottom fixed">
       <div class="left">
         <a href="/">Home</a>
-        <a href="/discover">Discover</a>
+        <a href="/discover.html">Discover</a>
       </div>
       <form action="/search" method="POST"><input
         class="fixed right"

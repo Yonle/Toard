@@ -1,4 +1,5 @@
 node_modules
+__pages
 package-lock.json
 database.db
 config.db

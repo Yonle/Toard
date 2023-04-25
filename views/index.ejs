@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="<%= t.d %>" />
     <title>/<%= id %>/ - <%= t.t %></title>
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="/style.css" />
   </head>
 
   <body>
@@ -24,8 +24,8 @@
       <% for (const p of pst) { %>
       <div class="post" id="t<%= p.ts %>">
         <div>
-          <b><a href="<%= srch ? "/" + p.id + "#t" + p.ts : "#t" + p.ts %>"><%= p.t %></a></b>
-          <small class="date"><%- srch ? `at <a href="/${p.id}">/${p.id}/</a> - ` : "" %><%= (new Date(p.ts)).toLocaleString("ia") %></small>
+          <b><a href="<%= srch ? "/" + p.id + "/#t" + p.ts : "#t" + p.ts %>"><%= p.t %></a></b>
+          <small class="date"><%- srch ? `at <a href="/${p.id}/">/${p.id}/</a> - ` : "" %><%= (new Date(p.ts)).toLocaleString("ia") %></small>
         </div>
         <pre><%= p.d %></pre>
       </div>
@@ -114,7 +114,7 @@
     <div class="bottom fixed">
       <div class="left">
         <a href="/">Home</a>
-        <a href="/discover">Discover</a>
+        <a href="/discover.html">Discover</a>
         <% if (!["hello_there", "toard_api", "search"].includes(id.toLowerCase())) { %><a href="#reply">Reply</a><% } %>
       </div>
       <form action="/search" method="POST"><input
@@ -136,7 +136,7 @@
     function make(data) {
       if (!data.ts || !data.t || !data.d) return;
       let post = document.createElement("div");
-      let span = document.createElement("span");
+      let span = document.createElement("small");
       let borderTop = document.createElement("div");
       let pre = document.createElement("pre");
       let a = document.createElement("a");
@@ -177,34 +177,5 @@
     }
 
     setInterval(getNewPosts, 10000);
-    <% if (!ct) { %>
-    function submit() {
-      document.getElementById("reply_name").disabled = true;
-      document.getElementById("reply_comment").disabled = true;
-      document.getElementById("reply_button").disabled = true;
-
-      let t = encodeURIComponent(document.getElementById("reply_name").value);
-      let d = encodeURIComponent(document.getElementById("reply_comment").value);
-
-      let xhr = new XMLHttpRequest ();
-      xhr.open("POST", location.pathname + "/reply", true);
-      xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-      xhr.send(`t=${t}&d=${d}`);
-
-      xhr.addEventListener('load', _ => {
-        location.hash = "#bottom";
-        document.getElementById("reply_comment").value = "";
-
-        document.getElementById("reply_name").disabled = false;
-        document.getElementById("reply_comment").disabled = false;
-        document.getElementById("reply_button").disabled = false;
-      });
-
-      xhr.addEventListener('error', submit);
-    }
-
-    document.getElementById("reply_button").onclick = submit;
-    document.getElementById("reply_button").type = "button";
-    <% } %>
   </script>
 </html>
