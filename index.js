@@ -154,7 +154,7 @@ a.post("/create", (q, s) => {
     const ins = db.prepare(`INSERT INTO '${id}' VALUES (@ts, @t, @d);`);
     ins.run({ ts: Date.now(), t, d });
 
-    p.generate(db, id, q.headers?.host);
+    p.generate(db, sess.onid, q.headers?.host);
 
     s.redirect("/" + id + "/");
 });
