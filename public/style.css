@@ -69,6 +69,15 @@ a {
   margin-bottom: 6px;
 }
 
+.post img {
+  float: left;
+  max-width: 140px;
+  max-height: 150px;
+
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
+
 .replies {
   margin-left: 10px;
 }

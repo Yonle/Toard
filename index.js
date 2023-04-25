@@ -168,7 +168,7 @@ a.post("/search", (q, s) => {
     for (th of db.prepare("SELECT id FROM __threadlists;").iterate()) {
       for (let i of db.prepare(`SELECT * from '${th.id}';`).iterate()) {
         i.id = th.id;
-        if (i.t.toLowerCase().includes(q.body.q) || i.d.toLowerCase().includes(q.body.q)) return fnd.push(i);
+        if (i.t.toLowerCase().includes(q.body.q) || i.d.toLowerCase().includes(q.body.q)) fnd.push(i);
       }
     }
 
