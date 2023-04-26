@@ -156,7 +156,7 @@ a.post("/create", (q, s) => {
     const ins = db.prepare(`INSERT INTO '${id}' VALUES (@ts, @t, @d);`);
     ins.run({ ts: Date.now(), t, d });
 
-    p.generate(db, sess.onid, q.headers?.host);
+    p.generate(db, id, q.headers?.host);
 
     s.redirect("/" + id + "/");
 });
@@ -241,7 +241,7 @@ a.post("/verify", (q, s) => {
         db.prepare(`DELETE FROM __threadlists WHERE id = ?;`).run(sess.onid.toString());
         db.prepare("INSERT OR IGNORE INTO __threadlists VALUES (?);").run(sess.onid.toString());
 
-        p.generate(db, id, q.headers?.host);
+        p.generate(db, sess.onid, q.headers?.host);
 
         s.redirect(`/${sess.onid}/#t${ts}`);
       } catch (err) {
