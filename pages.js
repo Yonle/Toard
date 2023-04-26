@@ -5,7 +5,7 @@ let viewsfolder = __dirname + "/views/"
 
 fs.mkdirSync(pagesfolder, { recursive: true });
 
-fs.stat(__dirname + "/local/views/", (e) {
+fs.stat(__dirname + "/local/views/", (e) => {
   if (e) return;
   viewsfolder = __dirname + "/local/views/";
 });
