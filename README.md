@@ -65,6 +65,11 @@ sqlite3> DELETE FROM config WHERE name = 'captcha';
 
 #### Also remember to do backup.
 
+## Modifying Frontend
+Make a folder called `local`, Then copy `views` and `public` folders to `local`.
+
+And then start modify inside `local` folder.
+
 ## Community
 * Telegram: https://t.me/yonlecoder
 * #yonle at irc.lecturify.net

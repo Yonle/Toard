@@ -130,9 +130,11 @@ a.use((q, s, n) => {
   });
 });
 
+a.set("views", __dirname + "/local/views");
 a.set("views", __dirname + "/views");
 a.set("view engine", "ejs");
 a.use(eps.static(__dirname + "/__pages"));
+a.use(eps.static(__dirname + "/local/public"));
 a.use(eps.static(__dirname + "/public"));
 a.use(bp.urlencoded({ extended: true }));
 a.use(bp.json());

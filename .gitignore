@@ -8,3 +8,4 @@ config.db
 captcha_sessions.db
 db.json
 .env
+local
