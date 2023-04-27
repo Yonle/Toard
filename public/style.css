@@ -1,5 +1,7 @@
 body {
   font-family: sans-serif;
+  background: #fff1f1;
+  color: #780000;
 }
 
 pre {
@@ -29,7 +31,7 @@ a {
   position: fixed;
   z-index: 3;
   /* margin: 0; */
-  background: white;
+  background: #fff1f1;
 }
 
 .bottom {
