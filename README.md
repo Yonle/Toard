@@ -89,6 +89,7 @@ Grab the first two digits:
 So, An IPv6 address to ban: `2a09:bc5a`
 
 - To whitelist an IP, `./modtools/ip_white.sh [ipaddr]`
+- To unban an IP, `./modtools/ip_unblock.sh [ipaddr]`
 
 ## Community
 * Telegram: https://t.me/yonlecoder
