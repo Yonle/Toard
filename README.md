@@ -73,6 +73,21 @@ And then start modify inside `local` folder.
 ## modtools
 - To nuke a thread, `./modtools/nuke.sh [threadid]`
 - To ban an IP, `./modtools/ip_block.sh [ipaddr]` (Not effective if the IP is whitelisted)
+
+To ban an IPv6 Address, By example:
+
+```
+2a09:bc5a:abcd:efgh::
+```
+
+Grab the first two digits:
+
+```
+[2a09:bc5a]:abcd:efgh::
+```
+
+So, An IPv6 address to ban: `2a09:bc5a`
+
 - To whitelist an IP, `./modtools/ip_white.sh [ipaddr]`
 
 ## Community

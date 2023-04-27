@@ -74,11 +74,11 @@ let lth = _ => db.prepare("SELECT id FROM __threadlists;").all().map(({ id }) =>
 
 a.use(com());
 a.use((q, s, n) => {
+  const d = new Date();
   const bl = sys.prepare("SELECT * FROM ip_block WHERE ip = ?;");
   const wl = sys.prepare("SELECT * FROM ip_white WHERE ip = ?;");
   const cf = sys.prepare("SELECT * FROM config WHERE name = ?;");
-  const ip = q.headers["x-forwarded-for"]?.split(",")[0] || q.socket.address().address;
-  const d = new Date();
+  let ip = q.headers["x-forwarded-for"]?.split(",")[0] || q.socket.address().address;
 
   console.log(`${d.getHours()}:${d.getMinutes()}:${d.getSeconds()} ${ip} ${q.method} ${q.path}`);
 
@@ -86,6 +86,9 @@ a.use((q, s, n) => {
   q.wl = wl.get(ip); // Whenever this IP is whitelisted
   q.ct = cf.get("captcha"); // Whenever we enabled captcha or no
   q.getCookie = n => getCookie(q.headers.cookie, n);
+
+  const ipv6 = ip.split(":");
+  if (ipv6.length) ip = ipv6.slice(0, 2).join(":");
 
   if (wl.get(ip)) return n();
   reqnum++;
