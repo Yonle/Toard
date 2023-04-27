@@ -70,6 +70,9 @@ Make a folder called `local`, Then copy `views` and `public` folders to `local`.
 
 And then start modify inside `local` folder.
 
+## modtools
+To nuke a thread, `./modtools/nuke.sh threadid`
+
 ## Community
 * Telegram: https://t.me/yonlecoder
 * #yonle at irc.lecturify.net
