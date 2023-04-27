@@ -98,7 +98,7 @@ a.use((q, s, n) => {
     return s.socket.destroy();
   }
 
-  if (q.method === "POST" && bl.get(ip)) {
+  if ((process.env.TOARD_LOCKDOWN || cf.get("lockdown")) || q.method === "POST" && (bl.get(ip) || process.env.TOARD_READ_ONLY || cf.get("read_only"))) {
     console.log(ip, "is blocked.");
     return s.status(403).end("Dong.");
   }
