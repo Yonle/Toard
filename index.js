@@ -52,6 +52,7 @@ db.transaction(_ => {
 sys.exec("CREATE TABLE IF NOT EXISTS ip_block (ip TEXT, UNIQUE(ip));");
 sys.exec("CREATE TABLE IF NOT EXISTS ip_white (ip TEXT, UNIQUE(ip));");
 sys.exec("CREATE TABLE IF NOT EXISTS locked_thread (id TEXT, UNIQUE(id));");
+sys.exec("CREATE TABLE IF NOT EXISTS isp_block (name TEXT, UNIQUE(name));");
 sys.exec("CREATE TABLE IF NOT EXISTS config (name TEXT, value TEXT, UNIQUE(name));");
 
 let ths = db.prepare("SELECT id FROM __threadlists;").all().length;
