@@ -71,6 +71,9 @@ Make a folder called `local`, Then copy `views` and `public` folders to `local`.
 And then start modify inside `local` folder.
 
 ## modtools
+
+- To lock a thread, `./modtools/lock_thread.sh [threadid]`
+- To unlock a thread, `./modtools/unlock_thread.sh [threadid]`
 - To nuke a thread, `./modtools/nuke.sh [threadid]`
 - To ban an IP, `./modtools/ip_block.sh [ipaddr]` (Not effective if the IP is whitelisted)
 

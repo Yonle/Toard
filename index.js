@@ -49,6 +49,7 @@ db.transaction(_ => {
 
 sys.exec("CREATE TABLE IF NOT EXISTS ip_block (ip TEXT, UNIQUE(ip));");
 sys.exec("CREATE TABLE IF NOT EXISTS ip_white (ip TEXT, UNIQUE(ip));");
+sys.exec("CREATE TABLE IF NOT EXISTS locked_thread (id TEXT, UNIQUE(id));");
 sys.exec("CREATE TABLE IF NOT EXISTS config (name TEXT, value TEXT, UNIQUE(name));");
 
 let ths = db.prepare("SELECT id FROM __threadlists;").all().length;
@@ -257,9 +258,9 @@ a.post("/verify", (q, s) => {
 });
 
 a.use("/:id/reply", (q, s, n) => {
-    if (q.params.id === "verify") return n();
     if (ita(q.params.id)) {
         q.id = q.params.id.toLowerCase();
+        if (sys.prepare("SELECT id FROM locked_thread WHERE id = ?;").get(q.id)) return s.status(403).end("Thread is locked.");
         n();
     } else s.status(404).end("Not found or deleted");
 });
