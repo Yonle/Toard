@@ -95,6 +95,9 @@ So, An IPv6 address to ban: `2a09:bc5a`
 - To unban an IP, `./modtools/ip_unblock.sh [ipaddr]`
 - To unwhitelist an IP, `./modtools/ip_unwhite.sh [ipaddr]`
 
+- To block an ISP, for instance, `CLOUDFLAREWARP`, `./modtools/isp_block.sh [ispname]`
+- To unblock an ISP, `./modtools/isp_unblock.sh [ispname]`
+
 - To locking down the entire server, `./modtools/lockdown.sh`
 - To unlocking down the entire server, `./modtools/unlockdown.sh`
 - To make the server read only, `./modtools/read_only.sh`

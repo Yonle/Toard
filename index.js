@@ -16,6 +16,8 @@ let getCookie = (c, n) => c && c.split("; ").filter(i => i.startsWith(n)).pop()?
 let db = new sql("database.db");
 let sys = new sql("config.db");
 
+let wi = require("./whois.js")(sys);
+
 // If 2 iterates executed, better-sqlite3 prevents you to do other stuffs while this happens.
 // Though, we only do reading.
 
@@ -73,6 +75,7 @@ let lth = _ => db.prepare("SELECT id FROM __threadlists;").all().map(({ id }) =>
   }
 }).filter(i => i);
 
+a.use(wi);
 a.use(com());
 a.use((q, s, n) => {
   const d = new Date();
@@ -81,7 +84,7 @@ a.use((q, s, n) => {
   const cf = sys.prepare("SELECT * FROM config WHERE name = ?;");
   let ip = q.headers["x-forwarded-for"]?.split(",")[0] || q.socket.address().address;
 
-  console.log(`${d.getHours()}:${d.getMinutes()}:${d.getSeconds()} ${ip} ${q.method} ${q.path}`);
+  console.log(`${q.bip ? "[BLOCKED ISP] " : ""}${d.getHours()}:${d.getMinutes()}:${d.getSeconds()} ${ip} ${q.method} ${q.path}`);
 
   q.ip = ip; // IP address
   q.wl = wl.get(ip); // Whenever this IP is whitelisted
@@ -99,7 +102,7 @@ a.use((q, s, n) => {
     return s.socket.destroy();
   }
 
-  if ((process.env.TOARD_LOCKDOWN || cf.get("lockdown")) || q.method === "POST" && (bl.get(ip) || process.env.TOARD_READ_ONLY || cf.get("read_only"))) {
+  if ((process.env.TOARD_LOCKDOWN || cf.get("lockdown")) || q.method === "POST" && (bl.get(ip) || process.env.TOARD_READ_ONLY || cf.get("read_only") || q.bip)) {
     console.log(ip, "is blocked.");
     return s.status(403).end("Dong.");
   }

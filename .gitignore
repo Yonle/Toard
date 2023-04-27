@@ -6,6 +6,7 @@ database.db-shm
 database.db-wal
 config.db
 captcha_sessions.db
+whoiscache.db
 db.json
 .env
 local
