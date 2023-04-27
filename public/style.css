@@ -106,6 +106,5 @@ a {
 @media only screen and (min-width: 960px) {
   #posts {
     max-width: 80%;
-    float: left;
   }
 }
