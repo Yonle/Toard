@@ -1,7 +1,7 @@
 const net = require("net");
 
 module.exports = sys => (q, s, n) => {
-  if (q.method !== "POST") return;
+  if (q.method !== "POST") return n();
   const ip = q.headers["x-forwarded-for"]?.split(",")[0] || q.socket.address().address;
   const wl = sys.prepare("SELECT ip FROM ip_white WHERE ip = ?;");
   const ib = sys.prepare("SELECT ip FROM ip_block WHERE ip = ?;");
