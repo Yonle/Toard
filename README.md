@@ -77,20 +77,6 @@ And then start modify inside `local` folder.
 - To nuke a thread, `./modtools/nuke.sh [threadid]`
 - To ban an IP, `./modtools/ip_block.sh [ipaddr]` (Not effective if the IP is whitelisted)
 
-To ban an IPv6 Address, By example:
-
-```
-2a09:bc5a:abcd:efgh::
-```
-
-Grab the first two digits:
-
-```
-[2a09:bc5a]:abcd:efgh::
-```
-
-So, An IPv6 address to ban: `2a09:bc5a`
-
 - To whitelist an IP, `./modtools/ip_white.sh [ipaddr]`
 - To unban an IP, `./modtools/ip_unblock.sh [ipaddr]`
 - To unwhitelist an IP, `./modtools/ip_unwhite.sh [ipaddr]`
@@ -102,6 +88,9 @@ So, An IPv6 address to ban: `2a09:bc5a`
 - To unlocking down the entire server, `./modtools/unlockdown.sh`
 - To make the server read only, `./modtools/read_only.sh`
 - To make the server unlocked from read only, `./modtools/unread_only.sh`
+
+- To block open port from client, `./modtools/block_open_port.sh [port]`
+- To unblock open port from client, `./modtools/unblock_open_port.sh [port]`
 
 ## Community
 * Telegram: https://t.me/yonlecoder
