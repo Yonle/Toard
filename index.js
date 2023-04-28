@@ -57,9 +57,7 @@ sys.exec("CREATE TABLE IF NOT EXISTS isp_block (name TEXT, UNIQUE(name));");
 sys.exec("CREATE TABLE IF NOT EXISTS config (name TEXT, value TEXT, UNIQUE(name));");
 
 let ths = db.prepare("SELECT id FROM __threadlists;").all().length;
-let reqnum = 0;
 let newPostsFromIP = {};
-let underattack = false;
 
 let lth = _ => db.prepare("SELECT id FROM __threadlists;").all().map(({ id }) => {
   try {
@@ -95,12 +93,6 @@ a.use((q, s, n) => {
   q.getCookie = n => getCookie(q.headers.cookie, n);
 
   if (wl.get(ip)) return n();
-  reqnum++;
-
-  if (underattack) {
-    console.log(`!!! SERVER UNDER ATTACK !!!! (${reqnum} connections destroyed)`);
-    return s.socket?.destroy();
-  }
 
   if ((process.env.TOARD_LOCKDOWN || cf.get("lockdown")) || q.method === "POST" && (bl.get(ip) || process.env.TOARD_READ_ONLY || cf.get("read_only") || q.bip)) {
     console.log(ip, "is blocked.");
@@ -304,16 +296,3 @@ process.on('exit', () => db.close());
 process.on('SIGHUP', () => process.exit(128 + 1));
 process.on('SIGINT', () => process.exit(128 + 2));
 process.on('SIGTERM', () => process.exit(128 + 15));
-
-setInterval(() => {
-  const cf = sys.prepare("SELECT * FROM config WHERE name = ?;");
-  if (reqnum > (cf.get("requests_number_limit")?.value || 120)) {
-    console.log("--- DDOS Wall Enabled.");
-    underattack = true;
-  } else {
-    if (underattack) console.log("--- DDOS Wall Disabled.");
-    underattack = false;
-  }
-
-  reqnum = 0;
-}, 3000);
