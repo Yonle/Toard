@@ -99,7 +99,7 @@ a.use((q, s, n) => {
 
   if (underattack) {
     console.log(`!!! SERVER UNDER ATTACK !!!! (${reqnum} connections destroyed)`);
-    return s.socket.destroy();
+    return s.socket?.destroy();
   }
 
   if ((process.env.TOARD_LOCKDOWN || cf.get("lockdown")) || q.method === "POST" && (bl.get(ip) || process.env.TOARD_READ_ONLY || cf.get("read_only") || q.bip)) {
