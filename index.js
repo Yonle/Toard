@@ -59,22 +59,6 @@ sys.exec("CREATE TABLE IF NOT EXISTS config (name TEXT, value TEXT, UNIQUE(name)
 let ths = db.prepare("SELECT id FROM __threadlists;").all().length;
 let newPostsFromIP = {};
 
-let lth = _ => db.prepare("SELECT id FROM __threadlists;").all().map(({ id }) => {
-  try {
-    // Warning: Any mistake in this zone will resulting total destruction.
-    let t = db.prepare(`SELECT ts, t, d FROM "${id}";`).all();
-    t[0].id = id;
-    t[0].length = t.length;
-    return t;
-  } catch (err) {
-    console.error(err);
-    console.error(`--- /${id}/ is corrupted. Deleting.`);
-    db.prepare("DELETE FROM __threadlists WHERE id = ?;").run(id);
-    db.exec(`DROP TABLE '${id}';`);
-    return null;
-  }
-}).filter(i => i);
-
 a.use(wi);
 a.use(ps);
 a.use(com());
