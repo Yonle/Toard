@@ -22,11 +22,7 @@ module.exports = sys => (q, s, n) => {
     if (err) return n();
     if (bl.find(n => data.includes(n))) q.bip = true;
 
-    try {
-      cache.prepare("INSERT INTO cached VALUES (?, ?);").run(ip, data);
-    } catch (err) {
-      // That's basically it.
-    }
+    cache.prepare("INSERT OR IGNORE INTO cached VALUES (?, ?);").run(ip, data);
     return n();
   });
 };
