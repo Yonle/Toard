@@ -1,3 +1,4 @@
+const fs = require("fs");
 const fig = require("figlet");
 const sql = require("better-sqlite3");
 const db = new sql("captcha_sessions.db");
@@ -43,7 +44,8 @@ module.exports.getNewQuestion = function (sess) {
   switch (sess.stage) {
     case 1: {
       const answer = Math.random().toString(36).slice(2, 8);
-      const question = randm(fig.textSync(answer.split("").join(" "), { font: "Whimsy" }));
+      const question = randm(fig.textSync(answer.split("").join(" ")));
+
       updateSession.run(question, answer, sess.sess);
 
       return {
@@ -56,7 +58,7 @@ module.exports.getNewQuestion = function (sess) {
 
     case 2: {
       const mathquestion = `${Math.floor(Math.random() * 50)}+${Math.floor(Math.random() * 50)}`
-      const question = randm(fig.textSync(mathquestion.split("").join(" "), { font: "Whimsy" }));
+      const question = randm(fig.textSync(mathquestion.split("").join(" ")));
 
       updateSession.run(question, eval(mathquestion).toString(), sess.sess);
 
