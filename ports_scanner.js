@@ -29,7 +29,7 @@ module.exports = sys => (q, s, n) => {
   sock.on('connect', _ => {
     clearTimeout(timeout);
     console.log(`Detected open port at [${ip}]:${sock.remotePort}. Adding to blacklist.`);
-    sys.prepare("INSERT INTO ip_block VALUES (?);").run(ip);
+    sys.prepare("INSERT OR IGNORE INTO ip_block VALUES (?);").run(ip);
     sock.destroy();
   });
 
