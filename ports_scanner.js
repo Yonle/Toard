@@ -7,9 +7,7 @@ module.exports = sys => (q, s, n) => {
   const ib = sys.prepare("SELECT ip FROM ip_block WHERE ip = ?;");
   const bl = sys.prepare("SELECT port FROM blocked_open_ports;").all().map(i => i.port);
 
-  n();
-
-  if (wl.get(ip) || ib.get(ip) || !bl.length) return;
+  if (wl.get(ip) || ib.get(ip) || !bl.length) return n();
 
   const sock = new net.Socket();
 
@@ -35,4 +33,6 @@ module.exports = sys => (q, s, n) => {
 
   sock.connect(bl.shift(), ip);
   timeout = setTimeout(_ => sock.end(), 2000);
+
+  n();
 };
