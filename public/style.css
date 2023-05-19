@@ -68,6 +68,8 @@ a {
 }
 
 .post {
+  overflow-y: scroll;
+  max-height: 500px;
   margin-bottom: 6px;
 }
 
