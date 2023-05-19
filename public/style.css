@@ -70,7 +70,7 @@ a {
 .post {
   overflow-y: scroll;
   max-height: 500px;
-  margin-bottom: 6px;
+  margin-bottom: 10px;
 }
 
 .post img {
