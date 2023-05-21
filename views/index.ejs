@@ -20,7 +20,7 @@
           <b><a href="<%= srch ? "/" + p.id + "/#t" + p.ts : "#t" + p.ts %>"><%= p.t %></a></b>
           <small class="date"><%- srch ? `at <a href="/${p.id}/">/${p.id}/</a> - ` : "" %><%= (new Date(p.ts)).toLocaleString("ia") %></small>
         </div>
-        <pre><%= p.d %></pre>
+        <pre><%- sf(p.d) %></pre>
       </div>
       <% }; %>
     </div>
@@ -123,6 +123,7 @@
 
     <div id="bottom"></div>
   </body>
+  <script src="/simple_formatter.js"></script>
   <script>
     let posts = document.getElementById("posts");
     let len = document.getElementById("posts").getElementsByTagName("pre").length;
@@ -147,7 +148,7 @@
       borderTop.appendChild(b);
       borderTop.appendChild(span);
 
-      pre.innerText = data.d;
+      pre.innerHTML = formatText(data.d);
       post.id = "t" + data.ts;
 
       post.appendChild(borderTop);

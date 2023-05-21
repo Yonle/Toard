@@ -1,7 +1,7 @@
 body {
   font-family: sans-serif;
-  background: #fff1f1;
-  color: #1a0000;
+  background: #ffecc0;
+  color: black;
 }
 
 pre {
@@ -14,7 +14,7 @@ pre {
 }
 
 a {
-  color: #980000;
+  color: black;
 }
 
 .date {
@@ -31,7 +31,7 @@ a {
   position: fixed;
   z-index: 3;
   /* margin: 0; */
-  background: #fff1f1;
+  background: #ffecc0;
 }
 
 .bottom {
@@ -80,6 +80,10 @@ a {
 
   margin-right: 10px;
   margin-bottom: 10px;
+}
+
+.quote {
+  color: green;
 }
 
 .replies {

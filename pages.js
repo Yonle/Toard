@@ -1,5 +1,6 @@
 const ejs = require("ejs");
 const fs = require("fs");
+const sf = require("./public/simple_formatter.js");
 const pagesfolder = __dirname + "/__pages";
 let viewsfolder = __dirname + "/views/"
 
@@ -17,7 +18,7 @@ async function generate(db, id) {
   fs.mkdirSync(pagesfolder + "/" + id, { recursive: true });
   return fs.writeFileSync(pagesfolder + "/" + id + "/index.html",
     await ejs.renderFile(viewsfolder + "index.ejs",
-      { pst: tab.iterate(), id, srch: false, t }
+      { pst: tab.iterate(), id, srch: false, t, sf }
     ),
     "utf8"
   );
@@ -53,7 +54,7 @@ async function generateDiscover(db, host) {
 
   return fs.writeFileSync(pagesfolder + "/discover.html",
     await ejs.renderFile(viewsfolder + "discover.ejs",
-      { bds, host: host },
+      { bds, host: host, sf },
     ),
     "utf8"
   );
