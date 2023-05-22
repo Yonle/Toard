@@ -6,6 +6,7 @@ const bp = require("body-parser");
 const p = require("./pages.js");
 const c = require("./captcha.js");
 const f = require("fs");
+const sf = require("./public/simple_formatter.js");
 const a = eps();
 
 // For temporary time, We're gonna use this for main topic.
@@ -173,7 +174,7 @@ a.post("/search", (q, s) => {
     }];
 
     s.render("index.ejs", {
-      pst: fnd, id: "search", srch: q.body.q, ct: q.ct, t: fnd[0]
+      pst: fnd, id: "search", srch: q.body.q, ct: q.ct, t: fnd[0], sf
     });
 });
 
