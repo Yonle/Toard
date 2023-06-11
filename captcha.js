@@ -43,20 +43,6 @@ module.exports.getNewQuestion = function (sess) {
 
   switch (sess.stage) {
     case 1: {
-      const answer = Math.random().toString(36).slice(2, 8);
-      const question = randm(fig.textSync(answer.split("").join(" ")));
-
-      updateSession.run(question, answer, sess.sess);
-
-      return {
-        q: question,
-        t: "Solve the captcha."
-      };
-
-      break;
-    }
-
-    case 2: {
       const mathquestion = `${Math.floor(Math.random() * 50)}+${Math.floor(Math.random() * 50)}`
       const question = randm(fig.textSync(mathquestion.split("").join(" ")));
 
@@ -74,11 +60,6 @@ module.exports.getNewQuestion = function (sess) {
 
 module.exports.verifyCaptchaAnswer = function (sess, answer) {
   if (sess.answer !== answer) return false;
-  if (sess.stage === 1) {
-    const ses = db.prepare(`UPDATE verification_sessions SET stage = ? WHERE sess = ?;`);
-    ses.run(2, sess.sess);
-    return false;
-  }
 
   db.exec(`DELETE FROM verification_sessions WHERE sess = '${sess.sess}';`);
   clearTimeout(tim.get(sess.sess));
