@@ -59,7 +59,10 @@ module.exports.getNewQuestion = function (sess) {
 }
 
 module.exports.verifyCaptchaAnswer = function (sess, answer) {
-  if (sess.answer !== answer) return false;
+  if (sess.answer !== answer) {
+    db.prepare(`UPDATE verification_sessions SET answer = ? WHERE sess = ?;`).run(Math.random().toString(36), sess.sess);
+    return false;
+  }
 
   db.exec(`DELETE FROM verification_sessions WHERE sess = '${sess.sess}';`);
   clearTimeout(tim.get(sess.sess));
