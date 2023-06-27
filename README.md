@@ -63,6 +63,11 @@ To disable, Simply delete the column.
 sqlite3> DELETE FROM config WHERE name = 'captcha';
 ```
 
+If you want to start Toard server with captcha without configuring configuration database, Set `CAPTCHA` environment variable:
+```
+CAPTCHA=yes node index.js
+```
+
 #### Also remember to do backup.
 
 ## Modifying Frontend

@@ -75,7 +75,7 @@ a.use((q, s, n) => {
 
   q.ip = ip; // IP address
   q.wl = wl.get(ip); // Whenever this IP is whitelisted
-  q.ct = cf.get("captcha"); // Whenever we enabled captcha or no
+  q.ct = cf.get("captcha") || process.env.CAPTCHA; // Whenever we enabled captcha or no
   q.getCookie = n => getCookie(q.headers.cookie, n);
 
   if (wl.get(ip)) return n();
