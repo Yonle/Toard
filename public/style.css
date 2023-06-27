@@ -2,6 +2,8 @@ body {
   font-family: sans-serif;
   background: #ffecc0;
   color: black;
+
+  margin: 5px;
 }
 
 pre {
@@ -70,6 +72,8 @@ a {
 .post {
   overflow-y: scroll;
   margin-bottom: 12px;
+  padding: 4px;
+  border: 1px solid gray;
 }
 
 .post img {
