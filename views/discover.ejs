@@ -2,7 +2,6 @@
 <!-- https://github.com/Yonle/Toard -->
 <html lang="en">
   <%- include("header.ejs", { t: `Discover - ${host}`, d: `Discover available threads at ${host}` }); %>
-  <style> .post { max-height: 500px; } </style>
   <body>
     <div id="top"></div>
     <div class="fixed top">
@@ -18,19 +17,22 @@
         <div class="post">
           <b class="top left">
             <a href="/<%= i[0].id %>/"><%= i[0].t %></a></b>
-            <small class="date"><%= i[0].length - 1 %> replies - <%= (new Date(i[0].ts)).toLocaleString("ia") %></small><br>
+            <small class="date"><%= (new Date(i[0].ts)).toLocaleString("ia") %></small><br>
           <pre><%- sf(i[0].d) %></pre>
-        </div>
-        <!--- Replies --->
-        <div class="replies">
-        <% i.slice((i.length > 5) ? (i.length - 5) : 1).forEach(r => { %>
-          <div class="post">
-            <b class="top left"
-              ><a href="/<%= i[0].id %>/#t<%= r.ts %>"><%= r.t %></a></b
-            > <small class="date"><%= (new Date(r.ts)).toLocaleString("ia") %></small><br>
-            <pre><%- sf(r.d) %></pre>
+          <!--- Replies --->
+          <details open>
+          <summary><%= i[0].length - 1 %> replies</summary>
+          <div class="replies">
+          <% i.slice((i.length > 5) ? (i.length - 5) : 1).forEach(r => { %>
+            <div class="post">
+              <b class="top left"
+                ><a href="/<%= i[0].id %>/#t<%= r.ts %>"><%= r.t %></a></b
+              > <small class="date"><%= (new Date(r.ts)).toLocaleString("ia") %></small><br>
+              <pre><%- sf(r.d) %></pre>
+            </div>
+          <% }); %>
           </div>
-        <% }); %>
+          </details>
         </div>
         <% }); %>
       </div>

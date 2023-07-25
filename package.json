@@ -30,7 +30,7 @@
   },
   "homepage": "https://github.com/Yonle/Toard#readme",
   "dependencies": {
-    "better-sqlite3": "^8.3.0",
+    "better-sqlite3": "^8.4.0",
     "body-parser": "^1.20.2",
     "compression": "^1.7.4",
     "ejs": "^3.1.9",

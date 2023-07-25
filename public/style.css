@@ -1,7 +1,5 @@
 body {
   font-family: sans-serif;
-  background: #ffecc0;
-  color: black;
 
   margin: 5px;
 }
@@ -33,7 +31,7 @@ a {
   position: fixed;
   z-index: 3;
   /* margin: 0; */
-  background: #ffecc0;
+  background: white;
 }
 
 .bottom {
@@ -71,7 +69,7 @@ a {
 
 .post {
   overflow-y: scroll;
-  margin-bottom: 12px;
+  margin-bottom: 7px;
   padding: 4px;
   border: 1px solid gray;
 }
