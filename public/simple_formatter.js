@@ -11,8 +11,14 @@ function encode_char(c) {
   return _ENCODE_HTML_RULES[c] || c;
 }
 
-function makegreentext(t) {
+function makeGreenText(t) {
   return t.startsWith("&gt;") ? "<span class=\"quote\">" + t + "</span>" : t;
+}
+
+function makeClickableLinks(t) {
+  return t.split(" ").map(i =>
+    (i.startsWith("https://") || i.startsWith("http://")) ? `<a class="quote" href="${i}">${i}</a>` : i
+  ).join(" ");
 }
 
 function filter(text) {
@@ -20,16 +26,15 @@ function filter(text) {
 }
 
 function fixspan(text) {
-  return text.split("</span>\n")
-    .join("</span>");
+  return text.split(">\n")
+    .join(">");
 }
 
 function formatText(text) {
-  const fixed = fixspan(filter(text).split("\n")
-    .map(makegreentext)
-    .join("\n"));
+  const fixed = fixspan(filter(text)
+    .split("\n").map(makeGreenText).map(makeClickableLinks).join("\n"));
 
-  return fixed.split(" ").map(i => (i.startsWith("https://") || i.startsWith("http://")) ? `<a class="quote" href="${i}">${i}</a>` : i).join(" ");
+  return fixed;
 }
 
 if (typeof(module) === "object") {
