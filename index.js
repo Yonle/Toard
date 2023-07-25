@@ -132,7 +132,7 @@ a.post("/create", (q, s) => {
     if (q.ct && !q.wl)
       return c.newCaptchaSession(q, s, "create");
 
-    const id = Math.random().toString(36).slice(2) + "_" + (1000000 + ths - 2 + 1);
+    const id = Math.random().toString(36).slice(2) + "_" + (ths - 2 + 1);
 
     db.exec(`CREATE TABLE '${id}' (ts INTEGER, t TEXT, d TEXT);`);
     db.prepare("INSERT OR IGNORE INTO __threadlists VALUES (?);").run(id.toString());
@@ -214,7 +214,7 @@ a.post("/verify", (q, s) => {
 
       try {
         if (sess.onid === "create") {
-          sess.onid = Math.random().toString(36).slice(2) + "_" + (1000000 + ths - 2 + 1);
+          sess.onid = Math.random().toString(36).slice(2) + "_" + (ths - 2 + 1);
           db.exec(`CREATE TABLE '${sess.onid}' (ts INTEGER, t TEXT, d TEXT);`);
           ths++;
         }
