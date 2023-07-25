@@ -25,9 +25,11 @@ function fixspan(text) {
 }
 
 function formatText(text) {
-  return fixspan(filter(text).split("\n")
+  const fixed = fixspan(filter(text).split("\n")
     .map(makegreentext)
     .join("\n"));
+
+  return fixed.split(" ").map(i => (i.startsWith("https://") || i.startsWith("http://")) ? `<a class="quote" href="${i}">${i}</a>` : i).join(" ");
 }
 
 if (typeof(module) === "object") {
