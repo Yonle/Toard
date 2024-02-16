@@ -174,7 +174,10 @@
         });
     }
 
-    window.onscroll = _ =. document.title = oldTitle;
+    window.onscroll = _ => {
+      newrepl = 0;
+      document.title = oldTitle;
+    }
 
     setInterval(getNewPosts, 10000);
   </script>
