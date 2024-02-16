@@ -127,6 +127,8 @@
   <script>
     let posts = document.getElementById("posts");
     let len = document.getElementById("posts").getElementsByTagName("pre").length;
+    let newrepl = 0;
+    let oldTitle = document.title;
 
     function make(data) {
       if (!data.ts || !data.t || !data.d) return;
@@ -165,13 +167,14 @@
         .then(r => r.json())
         .then(posts => {
           if (posts.length) {
-            const oldtitle = document.title;
-            document.title = `(*) ${posts.length} new replies for ${location.pathname}/`;
-            setTimeout(() => document.title = oldtitle, 10000);
+            newrepl += posts.length;
+            document.title = `(*) ${newrepl} new replies for ${location.pathname}/`;
           }
           posts.forEach(make);
         });
     }
+
+    window.onscroll = _ =. document.title = oldTitle;
 
     setInterval(getNewPosts, 10000);
   </script>
